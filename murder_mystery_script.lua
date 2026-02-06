@@ -1,43 +1,55 @@
 -- Roblox Murder Mystery Script - Rayfield UI Version
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
+-- Play opening sound effect
+local SoundService = game:GetService("SoundService")
+local OpeningSound = Instance.new("Sound")
+OpeningSound.SoundId = "rbxassetid://132529299748496" -- Your opening sound effect
+OpeningSound.Volume = 0.5
+OpeningSound.Parent = SoundService
+OpeningSound:Play()
+
 local Window = Rayfield:CreateWindow({
    Name = "Murder Mystery Script",
-   LoadingTitle = ".nojasmine.",
-   LoadingSubtitle = "ESP & Lock-On System",
+   LoadingTitle = "Sakura Blossom",
+   LoadingSubtitle = "MM2 ESP & Lock-On",
    ConfigurationSaving = {
       Enabled = false,
-   }
+   },
+   Background = "rbxassetid://16027581694" -- Sakura background image ID
 })
 
--- Main Tab
+-- Main Tab with pink theme
 local MainTab = Window:CreateTab("Main", 4483362458)
 
--- ESP Toggle
+-- ESP Toggle with pink styling
 MainTab:CreateToggle({
     Name = "ESP",
     CurrentValue = true,
+    Flag = "ESP_Toggle",
     Callback = function(value)
         getgenv().ESPEnabled = value
     end,
 })
 
--- Lock-On Toggle
+-- Lock-On Toggle with pink styling
 MainTab:CreateToggle({
     Name = "Lock-On",
     CurrentValue = true,
+    Flag = "LockOn_Toggle",
     Callback = function(value)
         getgenv().LockOnEnabled = value
     end,
 })
 
--- Settings Tab
+-- Settings Tab with enhanced pink theme
 local SettingsTab = Window:CreateTab("Settings", 4483362458)
 
--- ESP Color
+-- ESP Color (default pink)
 SettingsTab:CreateColorPicker({
     Name = "ESP Color",
-    Color = Color3.new(1, 0, 0),
+    Color = Color3.fromRGB(255, 182, 193), -- Light pink
+    Flag = "ESP_Color",
     Callback = function(value)
         getgenv().ESPColor = value
     end,
@@ -49,6 +61,7 @@ SettingsTab:CreateSlider({
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = 0.1,
+    Flag = "LockOn_Smoothness",
     Callback = function(value)
         getgenv().LockOnSmoothness = value
     end,
@@ -60,17 +73,32 @@ SettingsTab:CreateSlider({
     Range = {10, 100},
     Increment = 5,
     CurrentValue = 30,
+    Flag = "LockOn_FOV",
     Callback = function(value)
         getgenv().LockOnFOV = value
+    end,
+})
+
+-- UI Theme Settings
+SettingsTab:CreateLabel("UI Theme Settings")
+
+SettingsTab:CreateColorPicker({
+    Name = "UI Accent Color",
+    Color = Color3.fromRGB(255, 192, 203), -- Pink accent
+    Flag = "UI_Accent_Color",
+    Callback = function(value)
+        -- Update UI accent color if supported
+        getgenv().UIAccentColor = value
     end,
 })
 
 -- Info Tab
 local InfoTab = Window:CreateTab("Info", 4483362458)
 
+InfoTab:CreateLabel("🌸 Sakura MM2 Script 🌸")
 InfoTab:CreateLabel("Controls:")
 InfoTab:CreateLabel("Q - Lock onto nearest player")
-InfoTab:CreateLabel("Right Shift - Toggle GUI")
+InfoTab:CreateLabel("K - Toggle GUI")
 InfoTab:CreateLabel("Click and drag to move window")
 
 InfoTab:CreateButton({
@@ -78,19 +106,21 @@ InfoTab:CreateButton({
     Callback = function()
         setclipboard("https://github.com/warechloe6-rgb/murder-mystery")
         Rayfield:Notify({
-            Title = "GitHub",
+            Title = "🌸 GitHub",
             Content = "Copied GitHub link to clipboard!",
-            Duration = 5
+            Duration = 5,
+            Image = 4483362458
         })
     end,
 })
 
--- Initialize global variables
+-- Initialize global variables with pink theme
 getgenv().ESPEnabled = true
 getgenv().LockOnEnabled = true
-getgenv().ESPColor = Color3.new(1, 0, 0)
+getgenv().ESPColor = Color3.fromRGB(255, 182, 193) -- Light pink
 getgenv().LockOnSmoothness = 0.1
 getgenv().LockOnFOV = 30
+getgenv().UIAccentColor = Color3.fromRGB(255, 192, 203) -- Pink accent
 
 -- Services
 local Players = game:GetService("Players")
@@ -312,6 +342,13 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessed)
             if Target then
                 LockOn(Target)
             end
+        end
+    end
+    
+    -- K key to toggle GUI
+    if Input.KeyCode == Enum.KeyCode.K then
+        if Window then
+            Window:Toggle()
         end
     end
 end)
