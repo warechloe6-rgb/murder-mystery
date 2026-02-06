@@ -47,8 +47,8 @@ end
 bypassAntiCheat()
 
 local Window = Rayfield:CreateWindow({
-    Name = "🔫 MM2 Script 🔫",
-    LoadingTitle = "⚡ MM2 Script ⚡",
+    Name = "MM2 Script",
+    LoadingTitle = "MM2 Script",
     LoadingSubtitle = "❤ Made by Jassy ❤",
     ConfigurationSaving = {
         Enabled = false,
@@ -56,30 +56,30 @@ local Window = Rayfield:CreateWindow({
     BackgroundImage = "https://i.imgur.com/f6P9Vci.jpeg"
 })
 
--- ESP Tab 🎯
-local ESPTab = Window:CreateTab("🎯 ESP", 4483362458)
+-- ESP Tab
+local ESPTab = Window:CreateTab("ESP", 4483362458)
 
--- Role ESP Toggle 🔴
+-- Role ESP Toggle
 ESPTab:CreateToggle({
-    Name = "🔴 Role ESP",
+    Name = "[Role ESP]",
     CurrentValue = false,
     Callback = function(value)
         getgenv().RoleESPEnabled = value
     end,
 })
 
--- Name ESP Toggle 📝
+-- Name ESP Toggle
 ESPTab:CreateToggle({
-    Name = "📝 Name ESP",
+    Name = "[Name ESP]",
     CurrentValue = false,
     Callback = function(value)
         getgenv().NameESPEnabled = value
     end,
 })
 
--- Distance ESP Toggle 📏
+-- Distance ESP Toggle
 ESPTab:CreateToggle({
-    Name = "📏 Distance ESP",
+    Name = "[Distance ESP]",
     CurrentValue = false,
     Callback = function(value)
         getgenv().DistanceESPEnabled = value
@@ -205,21 +205,21 @@ game.Players.PlayerRemoving:Connect(function(player)
     end
 end)
 
--- Aimbot Tab 🎯
-local AimbotTab = Window:CreateTab("🎯 Aimbot", 4483362458)
+-- Aimbot Tab
+local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
 
--- Aimbot Toggle 🎖
+-- Aimbot Toggle
 AimbotTab:CreateToggle({
-    Name = "🎖 Aimbot",
+    Name = "[Aimbot]",
     CurrentValue = false,
     Callback = function(value)
         getgenv().AimbotEnabled = value
     end,
 })
 
--- Aimbot Settings ⚙️
+-- Aimbot Settings
 AimbotTab:CreateSlider({
-    Name = "⚙️ Aimbot Smoothness",
+    Name = "Aimbot Smoothness",
     Range = {1, 10},
     Increment = 1,
     CurrentValue = 5,
@@ -229,7 +229,7 @@ AimbotTab:CreateSlider({
 })
 
 AimbotTab:CreateToggle({
-    Name = "🎯 Target Murderers Only",
+    Name = "[Target Murderers Only]",
     CurrentValue = true,
     Callback = function(value)
         getgenv().TargetMurderersOnly = value
@@ -285,11 +285,11 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
--- Misc Tab 🛠️
-local MiscTab = Window:CreateTab("🛠️ Misc", 4483362458)
+-- Misc Tab
+local MiscTab = Window:CreateTab("Misc", 4483362458)
 
--- Credits/Discord Tab 💬
-local CreditsDiscordTab = Window:CreateTab("💬 Credits/Discord", 4483362458)
+-- Credits/Discord Tab
+local CreditsDiscordTab = Window:CreateTab("Credits/Discord", 4483362458)
 
 -- Movement Section
 MiscTab:CreateLabel("=== MOVEMENT ===")
@@ -729,7 +729,7 @@ MiscTab:CreateToggle({
 CreditsDiscordTab:CreateLabel("=== ❤ JASSY ❤ ===")
 
 CreditsDiscordTab:CreateButton({
-    Name = "💬 Copy Discord invite to clipboard",
+    Name = "Copy Discord invite to clipboard",
     Callback = function()
         setclipboard("https://discord.gg/RhjnE4tEQ8")
         Rayfield:Notify({
@@ -741,7 +741,7 @@ CreditsDiscordTab:CreateButton({
 })
 
 CreditsDiscordTab:CreateButton({
-    Name = "⌨️ GUI KEYBIND: K",
+    Name = "[GUI KEYBIND: K]",
     Callback = function()
         Rayfield:Notify({
             Title = "Keybind",
@@ -751,10 +751,10 @@ CreditsDiscordTab:CreateButton({
     end,
 })
 
--- Credits 📜
+-- Credits
 CreditsDiscordTab:CreateLabel("❤ Script made by: Jassy")
-CreditsDiscordTab:CreateLabel("📈 Version: 1.0")
-CreditsDiscordTab:CreateLabel("🔥 Property Of ScriptForge")
+CreditsDiscordTab:CreateLabel("Version: 1.0")
+CreditsDiscordTab:CreateLabel("Property Of ScriptForge")
 
 -- Uninject Button
 CreditsDiscordTab:CreateButton({
