@@ -255,27 +255,7 @@ local FarmTab = Window:CreateTab("Farm", 4483362458)
 
 local autofarm = false
 
-FarmTab:CreateToggle({
-    Name = "Auto Farm",
-    CurrentValue = false,
-    Callback = function(value)
-        autofarm = value
-        if value then
-            coroutine.wrap(function()
-                while autofarm do
-                    pcall(function()
-                        local char = game.Players.LocalPlayer.Character
-                        if char and char:FindFirstChild("HumanoidRootPart") then
-                            -- Teleport to farm location (adjust coordinates as needed)
-                            char:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(99.9, 140.4, 60.7)
-                        end
-                    end)
-                    task.wait(0.1)
-                end
-            end)()
-        end
-    end,
-})
+FarmTab:CreateLabel("Auto Farm has been removed")
 
 -- Auto Collect Coins
 FarmTab:CreateToggle({
@@ -565,58 +545,8 @@ JassyTab:CreateToggle({
     end,
 })
 
--- Click Teleport
-JassyTab:CreateToggle({
-    Name = "Click Teleport",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().ClickTeleportEnabled = value
-        if value then
-            getgenv().ClickTeleportConnection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
-                if gameProcessed then return end
-                if input.UserInputType == Enum.UserInputType.MouseButton1 and game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
-                    local char = game.Players.LocalPlayer.Character
-                    if char and char:FindFirstChild("HumanoidRootPart") then
-                        local mousePos = game:GetService("UserInputService"):GetMouseLocation()
-                        local ray = workspace.CurrentCamera:ViewportPointToRay(mousePos.X, mousePos.Y)
-                        local targetPos = ray.Origin + ray.Direction * 1000
-                        char:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(targetPos)
-                    end
-                end
-            end)
-        else
-            if getgenv().ClickTeleportConnection then
-                getgenv().ClickTeleportConnection:Disconnect()
-                getgenv().ClickTeleportConnection = nil
-            end
-        end
-    end,
-})
-
 -- Character Section
 JassyTab:CreateLabel("=== CHARACTER ===")
-
--- God Mode
-JassyTab:CreateToggle({
-    Name = "God Mode",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().GodModeEnabled = value
-        if value then
-            coroutine.wrap(function()
-                while getgenv().GodModeEnabled do
-                    pcall(function()
-                        local char = game.Players.LocalPlayer.Character
-                        if char and char:FindFirstChildOfClass("Humanoid") then
-                            char:FindFirstChildOfClass("Humanoid").Health = char:FindFirstChildOfClass("Humanoid").MaxHealth
-                        end
-                    end)
-                    task.wait(0.1)
-                end
-            end)()
-        end
-    end,
-})
 
 -- Invisible
 JassyTab:CreateToggle({
@@ -680,18 +610,6 @@ JassyTab:CreateButton({
         Rayfield:Notify({
             Title = "Keybind",
             Content = "GUI Keybind is K",
-            Duration = 5
-        })
-    end,
-})
-
-JassyTab:CreateButton({
-    Name = "Get Script Loadstring",
-    Callback = function()
-        setclipboard("loadstring(game:HttpGetAsync('https://raw.githubusercontent.com/warechloe6-rgb/murder-mystery/main/murder_mystery_script.lua'))()")
-        Rayfield:Notify({
-            Title = "Loadstring",
-            Content = "Copied loadstring to clipboard!",
             Duration = 5
         })
     end,
