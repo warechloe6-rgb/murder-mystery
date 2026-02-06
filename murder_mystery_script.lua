@@ -1,540 +1,290 @@
--- Roblox Murder Mystery Script - Hybrid Solara/Rayfield UI
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local TweenService = game:GetService("TweenService")
-local SoundService = game:GetService("SoundService")
-local Workspace = game:GetService("Workspace")
-local Camera = Workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-
-local function uiCorner(inst, radius)
-    local c = Instance.new("UICorner")
-    c.CornerRadius = UDim.new(0, radius)
-    c.Parent = inst
-    return c
-end
-
-local function uiStroke(inst, thickness, transparency)
-    local s = Instance.new("UIStroke")
-    s.Thickness = thickness
-    s.Transparency = transparency
-    s.Color = Color3.fromRGB(255, 255, 255)
-    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-    s.Parent = inst
-    return s
-end
+-- Roblox Murder Mystery Script - Rayfield UI Version
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Play opening sound effect
+local SoundService = game:GetService("SoundService")
 local OpeningSound = Instance.new("Sound")
 OpeningSound.SoundId = "rbxassetid://132529299748496" -- Your opening sound effect
 OpeningSound.Volume = 0.5
 OpeningSound.Parent = SoundService
 OpeningSound:Play()
 
--- Custom UI System - Hybrid Solara/Rayfield Style
-local ScreenGui = Instance.new("ScreenGui")
-ScreenGui.Name = "HybridGUI"
-ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-ScreenGui.ResetOnSpawn = false
-ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-
--- Main Window (Compact like Rayfield)
-local MainWindow = Instance.new("Frame")
-MainWindow.Name = "MainWindow"
-MainWindow.Size = UDim2.new(0, 360, 0, 260)
-MainWindow.Position = UDim2.new(0.5, -180, 0.5, -130)
-MainWindow.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
-MainWindow.BorderSizePixel = 0
-MainWindow.Parent = ScreenGui
-
-uiCorner(MainWindow, 12)
-local mwStroke = uiStroke(MainWindow, 1, 0.82)
-mwStroke.Color = Color3.fromRGB(255, 255, 255)
-
--- Background Image
-local BackgroundImage = Instance.new("ImageLabel")
-BackgroundImage.Name = "BackgroundImage"
-BackgroundImage.Size = UDim2.new(1, 0, 1, 0)
-BackgroundImage.Position = UDim2.new(0, 0, 0, 0)
-BackgroundImage.BackgroundTransparency = 1
-BackgroundImage.Image = "rbxassetid://75487938851287" -- Your custom background image
-BackgroundImage.ImageTransparency = 0.86
-BackgroundImage.ScaleType = Enum.ScaleType.Crop
-BackgroundImage.Parent = MainWindow
-
-uiCorner(BackgroundImage, 12)
-
--- Dark Overlay
-local DarkOverlay = Instance.new("Frame")
-DarkOverlay.Name = "DarkOverlay"
-DarkOverlay.Size = UDim2.new(1, 0, 1, 0)
-DarkOverlay.Position = UDim2.new(0, 0, 0, 0)
-DarkOverlay.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-DarkOverlay.BackgroundTransparency = 0.55
-DarkOverlay.BorderSizePixel = 0
-DarkOverlay.Parent = MainWindow
-
-uiCorner(DarkOverlay, 12)
-
-local OverlayGradient = Instance.new("UIGradient")
-OverlayGradient.Rotation = 90
-OverlayGradient.Color = ColorSequence.new({
-    ColorSequenceKeypoint.new(0, Color3.fromRGB(0, 0, 0)),
-    ColorSequenceKeypoint.new(1, Color3.fromRGB(12, 12, 18))
+local Window = Rayfield:CreateWindow({
+   Name = "jassy's mm2",
+   LoadingTitle = "jassy's mm2 ♡",
+   LoadingSubtitle = "♡ pink & hearty UI ♡",
+   ConfigurationSaving = {
+      Enabled = false,
+   },
+   Background = "rbxassetid://75487938851287" -- Your custom background image
 })
-OverlayGradient.Transparency = NumberSequence.new({
-    NumberSequenceKeypoint.new(0, 0.25),
-    NumberSequenceKeypoint.new(1, 0.05)
+
+-- Main Tab with enhanced styling
+local MainTab = Window:CreateTab("🎯 Main", 4483362458)
+
+-- ESP Toggle with enhanced styling
+MainTab:CreateToggle({
+    Name = "👁️ ESP",
+    CurrentValue = true,
+    Flag = "ESP_Toggle",
+    Callback = function(value)
+        getgenv().ESPEnabled = value
+    end,
 })
-OverlayGradient.Parent = DarkOverlay
 
--- Title Bar (Solara style)
-local TitleBar = Instance.new("Frame")
-TitleBar.Name = "TitleBar"
-TitleBar.Size = UDim2.new(1, 0, 0, 30)
-TitleBar.Position = UDim2.new(0, 0, 0, 0)
-TitleBar.BackgroundColor3 = Color3.fromRGB(22, 22, 28)
-TitleBar.BorderSizePixel = 0
-TitleBar.Parent = MainWindow
+-- Lock-On Toggle with enhanced styling
+MainTab:CreateToggle({
+    Name = "🎯 Lock-On",
+    CurrentValue = true,
+    Flag = "LockOn_Toggle",
+    Callback = function(value)
+        getgenv().LockOnEnabled = value
+    end,
+})
 
-uiCorner(TitleBar, 12)
-local TitleGrad = Instance.new("UIGradient")
-TitleGrad.Rotation = 90
-TitleGrad.Color = ColorSequence.new(Color3.fromRGB(26, 26, 34), Color3.fromRGB(18, 18, 24))
-TitleGrad.Parent = TitleBar
+-- Settings Tab with enhanced styling
+local SettingsTab = Window:CreateTab("⚙️ Settings", 4483362458)
 
--- Logo (Solara style)
-local Logo = Instance.new("TextLabel")
-Logo.Name = "Logo"
-Logo.Size = UDim2.new(0, 70, 1, 0)
-Logo.Position = UDim2.new(0, 8, 0, 0)
-Logo.BackgroundTransparency = 1
-Logo.Text = "solara"
-Logo.TextColor3 = Color3.fromRGB(100, 200, 255)
-Logo.TextScaled = true
-Logo.Font = Enum.Font.GothamBold
-Logo.TextXAlignment = Enum.TextXAlignment.Left
-Logo.Parent = TitleBar
+-- ESP Color (default pink)
+SettingsTab:CreateColorPicker({
+    Name = "🎨 ESP Color",
+    Color = Color3.fromRGB(255, 105, 180), -- Hot pink
+    Flag = "ESP_Color",
+    Callback = function(value)
+        getgenv().ESPColor = value
+    end,
+})
 
--- Window Title
-local WindowTitle = Instance.new("TextLabel")
-WindowTitle.Name = "WindowTitle"
-WindowTitle.Size = UDim2.new(1, -110, 1, 0)
-WindowTitle.Position = UDim2.new(0, 78, 0, 0)
-WindowTitle.BackgroundTransparency = 1
-WindowTitle.Text = "Murder Mystery"
-WindowTitle.TextColor3 = Color3.fromRGB(225, 225, 235)
-WindowTitle.TextScaled = true
-WindowTitle.Font = Enum.Font.Gotham
-WindowTitle.TextXAlignment = Enum.TextXAlignment.Center
-WindowTitle.Parent = TitleBar
+-- Lock-On Smoothness
+SettingsTab:CreateSlider({
+    Name = "🔄 Aim Smoothness",
+    Range = {0, 1},
+    Increment = 0.05,
+    CurrentValue = 0.1,
+    Flag = "LockOn_Smoothness",
+    Callback = function(value)
+        getgenv().LockOnSmoothness = value
+    end,
+})
 
--- Control Buttons (Solara style)
-local ControlsFrame = Instance.new("Frame")
-ControlsFrame.Name = "ControlsFrame"
-ControlsFrame.Size = UDim2.new(0, 64, 1, 0)
-ControlsFrame.Position = UDim2.new(1, -68, 0, 0)
-ControlsFrame.BackgroundTransparency = 1
-ControlsFrame.Parent = TitleBar
+-- Lock-On FOV
+SettingsTab:CreateSlider({
+    Name = "📡 Aim FOV",
+    Range = {10, 100},
+    Increment = 5,
+    CurrentValue = 30,
+    Flag = "LockOn_FOV",
+    Callback = function(value)
+        getgenv().LockOnFOV = value
+    end,
+})
 
--- Settings Button
-local SettingsButton = Instance.new("TextButton")
-SettingsButton.Name = "SettingsButton"
-SettingsButton.Size = UDim2.new(0, 16, 0, 16)
-SettingsButton.Position = UDim2.new(0, 4, 0, 7)
-SettingsButton.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-SettingsButton.BorderSizePixel = 0
-SettingsButton.Text = "⚙"
-SettingsButton.TextColor3 = Color3.fromRGB(180, 180, 180)
-SettingsButton.TextScaled = true
-SettingsButton.Font = Enum.Font.Gotham
-SettingsButton.Parent = ControlsFrame
+-- UI Theme Settings
+SettingsTab:CreateLabel("🎨 UI Theme Settings")
 
-uiCorner(SettingsButton, 6)
-local sbStroke = uiStroke(SettingsButton, 1, 0.85)
-sbStroke.Color = Color3.fromRGB(255, 255, 255)
+SettingsTab:CreateColorPicker({
+    Name = "💫 UI Accent",
+    Color = Color3.fromRGB(255, 20, 147), -- Deep pink
+    Flag = "UI_Accent_Color",
+    Callback = function(value)
+        -- Update UI accent color if supported
+        getgenv().UIAccentColor = value
+    end,
+})
 
--- Minimize Button
-local MinimizeButton = Instance.new("TextButton")
-MinimizeButton.Name = "MinimizeButton"
-MinimizeButton.Size = UDim2.new(0, 16, 0, 16)
-MinimizeButton.Position = UDim2.new(0, 24, 0, 7)
-MinimizeButton.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-MinimizeButton.BorderSizePixel = 0
-MinimizeButton.Text = "−"
-MinimizeButton.TextColor3 = Color3.fromRGB(180, 180, 180)
-MinimizeButton.TextScaled = true
-MinimizeButton.Font = Enum.Font.Gotham
-MinimizeButton.Parent = ControlsFrame
+-- Info Tab with enhanced styling
+local InfoTab = Window:CreateTab("📋 Info", 4483362458)
 
-uiCorner(MinimizeButton, 6)
-local mbStroke = uiStroke(MinimizeButton, 1, 0.85)
-mbStroke.Color = Color3.fromRGB(255, 255, 255)
+InfoTab:CreateLabel("♡ jassy's mm2 ♡")
+InfoTab:CreateLabel("━━━━━━━━━━━━━━━━━━━━━━")
+InfoTab:CreateLabel("🎮 Controls:")
+InfoTab:CreateLabel("Aimlock Key - Toggle the keybind panel")
+InfoTab:CreateLabel("(Type your key in the box)")
+InfoTab:CreateLabel("🖱️ Click and drag to move window")
+InfoTab:CreateLabel("━━━━━━━━━━━━━━━━━━━━━━")
 
--- Close Button
-local CloseButton = Instance.new("TextButton")
-CloseButton.Name = "CloseButton"
-CloseButton.Size = UDim2.new(0, 16, 0, 16)
-CloseButton.Position = UDim2.new(0, 44, 0, 7)
-CloseButton.BackgroundColor3 = Color3.fromRGB(200, 50, 50)
-CloseButton.BorderSizePixel = 0
-CloseButton.Text = "×"
-CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-CloseButton.TextScaled = true
-CloseButton.Font = Enum.Font.Gotham
-CloseButton.Parent = ControlsFrame
+InfoTab:CreateButton({
+    Name = "🔗 Copy GitHub Link",
+    Callback = function()
+        setclipboard("https://github.com/warechloe6-rgb/murder-mystery")
+        Rayfield:Notify({
+            Title = "🌸 GitHub Copied!",
+            Content = "Link copied to clipboard successfully!",
+            Duration = 5,
+            Image = 4483362458
+        })
+    end,
+})
 
-uiCorner(CloseButton, 6)
-
--- Tab Container (Rayfield style)
-local TabContainer = Instance.new("Frame")
-TabContainer.Name = "TabContainer"
-TabContainer.Size = UDim2.new(1, 0, 0, 30)
-TabContainer.Position = UDim2.new(0, 0, 0, 30)
-TabContainer.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-TabContainer.BorderSizePixel = 0
-TabContainer.Parent = MainWindow
-
-uiCorner(TabContainer, 10)
-
--- Tabs
-local Tabs = {}
-local TabContents = {}
-
--- Create Tab Function (Hybrid style)
-local function CreateTab(name, icon)
-    local Tab = Instance.new("TextButton")
-    Tab.Name = name .. "Tab"
-    Tab.Size = UDim2.new(0, 65, 1, 0)
-    Tab.Position = UDim2.new(0, #Tabs * 66, 0, 0)
-    Tab.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-    Tab.BorderSizePixel = 0
-    Tab.Text = icon .. " " .. name
-    Tab.TextColor3 = Color3.fromRGB(160, 160, 160)
-    Tab.TextScaled = true
-    Tab.Font = Enum.Font.Gotham
-    Tab.Parent = TabContainer
-    
-    local TabContent = Instance.new("ScrollingFrame")
-    TabContent.Name = name .. "Content"
-    TabContent.Size = UDim2.new(1, -8, 1, -8)
-    TabContent.Position = UDim2.new(0, 4, 0, 4)
-    TabContent.BackgroundTransparency = 1
-    TabContent.BorderSizePixel = 0
-    TabContent.ScrollBarThickness = 6
-    TabContent.Visible = false
-    TabContent.Parent = TabContainer
-    
-    Tabs[name] = Tab
-    TabContents[name] = TabContent
-    
-    -- Tab click handler
-    Tab.MouseButton1Click:Connect(function()
-        -- Hide all tab contents
-        for _, content in pairs(TabContents) do
-            content.Visible = false
-        end
-        -- Reset all tab colors
-        for _, tab in pairs(Tabs) do
-            tab.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-            tab.TextColor3 = Color3.fromRGB(160, 160, 160)
-        end
-        -- Show selected tab content
-        TabContent.Visible = true
-        Tab.BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-        Tab.TextColor3 = Color3.fromRGB(255, 255, 255)
-    end)
-    
-    return TabContent
-end
-
--- Content Area (Rayfield style)
-local ContentArea = Instance.new("Frame")
-ContentArea.Name = "ContentArea"
-ContentArea.Size = UDim2.new(1, 0, 1, -60)
-ContentArea.Position = UDim2.new(0, 0, 0, 60)
-ContentArea.BackgroundColor3 = Color3.fromRGB(16, 16, 20)
-ContentArea.BorderSizePixel = 0
-ContentArea.Parent = MainWindow
-
-uiCorner(ContentArea, 12)
-
-local contentStroke = uiStroke(ContentArea, 1, 0.9)
-contentStroke.Color = Color3.fromRGB(255, 255, 255)
-
--- Create Main Tab
-local MainTab = CreateTab("Main", "🎯")
-MainTab.Parent = ContentArea
-
--- ESP Toggle (Rayfield style)
-local ESPToggle = Instance.new("Frame")
-ESPToggle.Name = "ESPToggle"
-ESPToggle.Size = UDim2.new(1, -16, 0, 30)
-ESPToggle.Position = UDim2.new(0, 10, 0, 10)
-ESPToggle.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-ESPToggle.BorderSizePixel = 0
-ESPToggle.Parent = MainTab
-
-uiCorner(ESPToggle, 10)
-local espPanelStroke = uiStroke(ESPToggle, 1, 0.9)
-espPanelStroke.Color = Color3.fromRGB(255, 255, 255)
-
-local ESPToggleButton = Instance.new("TextButton")
-ESPToggleButton.Name = "Toggle"
-ESPToggleButton.Size = UDim2.new(0, 54, 0, 18)
-ESPToggleButton.Position = UDim2.new(0, 8, 0, 6)
-ESPToggleButton.BackgroundTransparency = 1
-ESPToggleButton.BorderSizePixel = 0
-ESPToggleButton.Text = ""
-ESPToggleButton.Parent = ESPToggle
-
-local ESPTrack = Instance.new("Frame")
-ESPTrack.Name = "Track"
-ESPTrack.Size = UDim2.new(1, 0, 1, 0)
-ESPTrack.Position = UDim2.new(0, 0, 0, 0)
-ESPTrack.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-ESPTrack.BorderSizePixel = 0
-ESPTrack.Parent = ESPToggleButton
-uiCorner(ESPTrack, 999)
-local espTrackStroke = uiStroke(ESPTrack, 1, 0.85)
-espTrackStroke.Color = Color3.fromRGB(255, 255, 255)
-
-local ESPKnob = Instance.new("Frame")
-ESPKnob.Name = "Knob"
-ESPKnob.Size = UDim2.new(0, 14, 0, 14)
-ESPKnob.Position = UDim2.new(0, 2, 0.5, -7)
-ESPKnob.BackgroundColor3 = Color3.fromRGB(240, 240, 245)
-ESPKnob.BorderSizePixel = 0
-ESPKnob.Parent = ESPTrack
-uiCorner(ESPKnob, 999)
-local espKnobStroke = uiStroke(ESPKnob, 1, 0.85)
-espKnobStroke.Color = Color3.fromRGB(0, 0, 0)
-
-local ESPToggleLabel = Instance.new("TextLabel")
-ESPToggleLabel.Name = "Label"
-ESPToggleLabel.Size = UDim2.new(1, -62, 1, 0)
-ESPToggleLabel.Position = UDim2.new(0, 62, 0, 0)
-ESPToggleLabel.BackgroundTransparency = 1
-ESPToggleLabel.Text = "👁️ ESP"
-ESPToggleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-ESPToggleLabel.TextScaled = true
-ESPToggleLabel.Font = Enum.Font.Gotham
-ESPToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
-ESPToggleLabel.Parent = ESPToggle
-
--- Lock-On Toggle (Rayfield style)
-local LockOnToggle = Instance.new("Frame")
-LockOnToggle.Name = "LockOnToggle"
-LockOnToggle.Size = UDim2.new(1, -16, 0, 30)
-LockOnToggle.Position = UDim2.new(0, 10, 0, 48)
-LockOnToggle.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-LockOnToggle.BorderSizePixel = 0
-LockOnToggle.Parent = MainTab
-
-uiCorner(LockOnToggle, 10)
-local lockPanelStroke = uiStroke(LockOnToggle, 1, 0.9)
-lockPanelStroke.Color = Color3.fromRGB(255, 255, 255)
-
-local LockOnToggleButton = Instance.new("TextButton")
-LockOnToggleButton.Name = "Toggle"
-LockOnToggleButton.Size = UDim2.new(0, 54, 0, 18)
-LockOnToggleButton.Position = UDim2.new(0, 8, 0, 6)
-LockOnToggleButton.BackgroundTransparency = 1
-LockOnToggleButton.BorderSizePixel = 0
-LockOnToggleButton.Text = ""
-LockOnToggleButton.Parent = LockOnToggle
-
-local LockTrack = Instance.new("Frame")
-LockTrack.Name = "Track"
-LockTrack.Size = UDim2.new(1, 0, 1, 0)
-LockTrack.Position = UDim2.new(0, 0, 0, 0)
-LockTrack.BackgroundColor3 = Color3.fromRGB(40, 40, 48)
-LockTrack.BorderSizePixel = 0
-LockTrack.Parent = LockOnToggleButton
-uiCorner(LockTrack, 999)
-local lockTrackStroke = uiStroke(LockTrack, 1, 0.85)
-lockTrackStroke.Color = Color3.fromRGB(255, 255, 255)
-
-local LockKnob = Instance.new("Frame")
-LockKnob.Name = "Knob"
-LockKnob.Size = UDim2.new(0, 14, 0, 14)
-LockKnob.Position = UDim2.new(0, 2, 0.5, -7)
-LockKnob.BackgroundColor3 = Color3.fromRGB(240, 240, 245)
-LockKnob.BorderSizePixel = 0
-LockKnob.Parent = LockTrack
-uiCorner(LockKnob, 999)
-local lockKnobStroke = uiStroke(LockKnob, 1, 0.85)
-lockKnobStroke.Color = Color3.fromRGB(0, 0, 0)
-
-local LockOnToggleLabel = Instance.new("TextLabel")
-LockOnToggleLabel.Name = "Label"
-LockOnToggleLabel.Size = UDim2.new(1, -62, 1, 0)
-LockOnToggleLabel.Position = UDim2.new(0, 62, 0, 0)
-LockOnToggleLabel.BackgroundTransparency = 1
-LockOnToggleLabel.Text = "🎯 Lock-On"
-LockOnToggleLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-LockOnToggleLabel.TextScaled = true
-LockOnToggleLabel.Font = Enum.Font.Gotham
-LockOnToggleLabel.TextXAlignment = Enum.TextXAlignment.Left
-LockOnToggleLabel.Parent = LockOnToggle
-
--- Create Settings Tab
-local SettingsTab = CreateTab("Settings", "⚙️")
-SettingsTab.Parent = ContentArea
-
--- Keybind Settings
-local KeybindFrame = Instance.new("Frame")
-KeybindFrame.Name = "KeybindFrame"
-KeybindFrame.Size = UDim2.new(1, -16, 0, 72)
-KeybindFrame.Position = UDim2.new(0, 10, 0, 10)
-KeybindFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 40)
-KeybindFrame.BorderSizePixel = 0
-KeybindFrame.Parent = SettingsTab
-
-uiCorner(KeybindFrame, 10)
-local keybindStroke = uiStroke(KeybindFrame, 1, 0.9)
-keybindStroke.Color = Color3.fromRGB(255, 255, 255)
-
-local MenuKeyLabel = Instance.new("TextLabel")
-MenuKeyLabel.Name = "Label"
-MenuKeyLabel.Size = UDim2.new(1, -90, 0, 30)
-MenuKeyLabel.Position = UDim2.new(0, 10, 0, 5)
-MenuKeyLabel.BackgroundTransparency = 1
-MenuKeyLabel.Text = "🔑 Menu Keybind"
-MenuKeyLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-MenuKeyLabel.TextScaled = true
-MenuKeyLabel.Font = Enum.Font.Gotham
-MenuKeyLabel.TextXAlignment = Enum.TextXAlignment.Left
-MenuKeyLabel.Parent = KeybindFrame
-
-local MenuKeyInput = Instance.new("TextBox")
-MenuKeyInput.Name = "Input"
-MenuKeyInput.Size = UDim2.new(0, 54, 0, 18)
-MenuKeyInput.Position = UDim2.new(1, -64, 0, 10)
-MenuKeyInput.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-MenuKeyInput.BorderSizePixel = 1
-MenuKeyInput.BorderColor3 = Color3.fromRGB(60, 60, 70)
-MenuKeyInput.Text = "K"
-MenuKeyInput.PlaceholderText = "K"
-MenuKeyInput.ClearTextOnFocus = true
-MenuKeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-MenuKeyInput.TextScaled = true
-MenuKeyInput.Font = Enum.Font.Gotham
-MenuKeyInput.Parent = KeybindFrame
-
-uiCorner(MenuKeyInput, 6)
-local mkStroke = uiStroke(MenuKeyInput, 1, 0.85)
-mkStroke.Color = Color3.fromRGB(255, 255, 255)
-
-local LockOnKeyLabel = Instance.new("TextLabel")
-LockOnKeyLabel.Name = "Label"
-LockOnKeyLabel.Size = UDim2.new(1, -90, 0, 30)
-LockOnKeyLabel.Position = UDim2.new(0, 10, 0, 38)
-LockOnKeyLabel.BackgroundTransparency = 1
-LockOnKeyLabel.Text = "🔑 Lock-On Keybind"
-LockOnKeyLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-LockOnKeyLabel.TextScaled = true
-LockOnKeyLabel.Font = Enum.Font.Gotham
-LockOnKeyLabel.TextXAlignment = Enum.TextXAlignment.Left
-LockOnKeyLabel.Parent = KeybindFrame
-
-local LockOnKeyInput = Instance.new("TextBox")
-LockOnKeyInput.Name = "Input"
-LockOnKeyInput.Size = UDim2.new(0, 54, 0, 18)
-LockOnKeyInput.Position = UDim2.new(1, -64, 0, 43)
-LockOnKeyInput.BackgroundColor3 = Color3.fromRGB(45, 45, 50)
-LockOnKeyInput.BorderSizePixel = 1
-LockOnKeyInput.BorderColor3 = Color3.fromRGB(60, 60, 70)
-LockOnKeyInput.Text = "Q"
-LockOnKeyInput.PlaceholderText = "Q"
-LockOnKeyInput.ClearTextOnFocus = true
-LockOnKeyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
-LockOnKeyInput.TextScaled = true
-LockOnKeyInput.Font = Enum.Font.Gotham
-LockOnKeyInput.Parent = KeybindFrame
-
-uiCorner(LockOnKeyInput, 6)
-local lkStroke = uiStroke(LockOnKeyInput, 1, 0.85)
-lkStroke.Color = Color3.fromRGB(255, 255, 255)
-
--- Create Info Tab
-local InfoTab = CreateTab("Info", "📋")
-InfoTab.Parent = ContentArea
-
--- Info Content
-local InfoContent = Instance.new("TextLabel")
-InfoContent.Name = "InfoContent"
-InfoContent.Size = UDim2.new(1, -20, 1, 0)
-InfoContent.Position = UDim2.new(0, 10, 0, 10)
-InfoContent.BackgroundTransparency = 1
-InfoContent.Text = [[🌸 Hybrid MM2 Script 🌸
-
-🎮 Controls:
-• Menu Key: Toggle this UI
-• Lock-On Key: Aim at players
-
-🔧 Features:
-• ESP - See players through walls
-• Lock-On - Auto aim system
-• Custom keybinds
-• Hybrid UI design
-
-🎨 UI Style:
-• Solara + Rayfield hybrid
-• Compact design
-• Your custom background
-• Smooth animations
-
-━━━━━━━━━━━━━━━━━━━━━━
-Created by: warechloe6-rgb
-GitHub: warechloe6-rgb/murder-mystery]]
-InfoContent.TextColor3 = Color3.fromRGB(200, 200, 200)
-InfoContent.TextScaled = false
-InfoContent.Font = Enum.Font.Gotham
-InfoContent.TextSize = 12
-InfoContent.TextXAlignment = Enum.TextXAlignment.Left
-InfoContent.TextYAlignment = Enum.TextYAlignment.Top
-InfoContent.Parent = InfoTab
-
--- Initialize global variables
+-- Initialize global variables with enhanced pink theme
 getgenv().ESPEnabled = true
 getgenv().LockOnEnabled = true
-getgenv().ESPColor = Color3.fromRGB(255, 105, 180)
+getgenv().ESPColor = Color3.fromRGB(255, 105, 180) -- Hot pink
 getgenv().LockOnSmoothness = 0.1
 getgenv().LockOnFOV = 30
-getgenv().UIVisible = true
-getgenv().MenuKey = "K"
-getgenv().LockOnKey = "Q"
+getgenv().UIAccentColor = Color3.fromRGB(255, 20, 147) -- Deep pink
+
+getgenv().AimlockKey = getgenv().AimlockKey or "Q"
+
+do
+    local Players = game:GetService("Players")
+    local UserInputService = game:GetService("UserInputService")
+    local LocalPlayer = Players.LocalPlayer
+
+    local function sanitizeKeyName(s)
+        s = tostring(s or "")
+        s = s:gsub("%s+", "")
+        s = s:upper()
+        return s
+    end
+
+    local function isValidKeyName(s)
+        return Enum.KeyCode[s] ~= nil
+    end
+
+    local function ensureScreenGui()
+        local pg = LocalPlayer:WaitForChild("PlayerGui")
+        local existing = pg:FindFirstChild("JassyMM2_KeybindUI")
+        if existing then
+            return existing
+        end
+
+        local sg = Instance.new("ScreenGui")
+        sg.Name = "JassyMM2_KeybindUI"
+        sg.ResetOnSpawn = false
+        sg.Parent = pg
+        return sg
+    end
+
+    local KeybindGui = ensureScreenGui()
+
+    local Panel = Instance.new("Frame")
+    Panel.Name = "Panel"
+    Panel.Size = UDim2.new(0, 260, 0, 90)
+    Panel.Position = UDim2.new(0, 20, 0.5, -45)
+    Panel.BackgroundColor3 = Color3.fromRGB(255, 182, 213)
+    Panel.BackgroundTransparency = 0.12
+    Panel.BorderSizePixel = 0
+    Panel.Parent = KeybindGui
+
+    local PanelCorner = Instance.new("UICorner")
+    PanelCorner.CornerRadius = UDim.new(0, 14)
+    PanelCorner.Parent = Panel
+
+    local Stroke = Instance.new("UIStroke")
+    Stroke.Thickness = 1
+    Stroke.Transparency = 0.65
+    Stroke.Color = Color3.fromRGB(255, 255, 255)
+    Stroke.Parent = Panel
+
+    local Title = Instance.new("TextLabel")
+    Title.Name = "Title"
+    Title.Size = UDim2.new(1, -16, 0, 26)
+    Title.Position = UDim2.new(0, 8, 0, 6)
+    Title.BackgroundTransparency = 1
+    Title.Text = "♡ jassy's mm2 ♡"
+    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Title.TextStrokeTransparency = 0.7
+    Title.Font = Enum.Font.GothamBold
+    Title.TextSize = 16
+    Title.TextXAlignment = Enum.TextXAlignment.Left
+    Title.Parent = Panel
+
+    local Label = Instance.new("TextLabel")
+    Label.Name = "Label"
+    Label.Size = UDim2.new(0, 160, 0, 22)
+    Label.Position = UDim2.new(0, 10, 0, 40)
+    Label.BackgroundTransparency = 1
+    Label.Text = "aimlock keybind:"
+    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Label.TextStrokeTransparency = 0.75
+    Label.Font = Enum.Font.Gotham
+    Label.TextSize = 14
+    Label.TextXAlignment = Enum.TextXAlignment.Left
+    Label.Parent = Panel
+
+    local Box = Instance.new("TextBox")
+    Box.Name = "KeyBox"
+    Box.Size = UDim2.new(0, 70, 0, 22)
+    Box.Position = UDim2.new(1, -80, 0, 40)
+    Box.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
+    Box.BackgroundTransparency = 0.18
+    Box.BorderSizePixel = 0
+    Box.Text = getgenv().AimlockKey
+    Box.PlaceholderText = "Q"
+    Box.ClearTextOnFocus = true
+    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Box.Font = Enum.Font.GothamBold
+    Box.TextSize = 14
+    Box.Parent = Panel
+
+    local BoxCorner = Instance.new("UICorner")
+    BoxCorner.CornerRadius = UDim.new(0, 8)
+    BoxCorner.Parent = Box
+
+    local Hint = Instance.new("TextLabel")
+    Hint.Name = "Hint"
+    Hint.Size = UDim2.new(1, -16, 0, 18)
+    Hint.Position = UDim2.new(0, 10, 1, -22)
+    Hint.BackgroundTransparency = 1
+    Hint.Text = "(press it to toggle this panel)"
+    Hint.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Hint.TextStrokeTransparency = 0.8
+    Hint.Font = Enum.Font.Gotham
+    Hint.TextSize = 12
+    Hint.TextXAlignment = Enum.TextXAlignment.Left
+    Hint.Parent = Panel
+
+    local function applyKeyFromBox()
+        local prev = getgenv().AimlockKey
+        local v = sanitizeKeyName(Box.Text)
+        if v == "" then
+            Box.Text = prev
+            return
+        end
+        if not isValidKeyName(v) then
+            Box.Text = prev
+            return
+        end
+        getgenv().AimlockKey = v
+        Box.Text = v
+    end
+
+    Box.FocusLost:Connect(function()
+        applyKeyFromBox()
+    end)
+
+    UserInputService.InputBegan:Connect(function(input, gameProcessed)
+        if gameProcessed then
+            return
+        end
+
+        local aimKey = sanitizeKeyName(getgenv().AimlockKey)
+        if aimKey ~= "" and Enum.KeyCode[aimKey] and input.KeyCode == Enum.KeyCode[aimKey] then
+            Panel.Visible = not Panel.Visible
+        end
+    end)
+end
+
+return
+
+-- Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
 
 -- Variables
 local LockedTarget = nil
 local ESP_Objects = {}
 local IsLocked = false
-local IsDragging = false
-local DragStart = nil
-local StartPos = nil
-local IsMinimized = false
 
 -- ESP Folder
 local ESPFolder = Instance.new("Folder")
 ESPFolder.Name = "MM2_ESP_Highlights"
 ESPFolder.Parent = game.CoreGui
-
--- Opening Animation
-MainWindow.Size = UDim2.new(0, 0, 0, 0)
-MainWindow.Position = UDim2.new(0.5, 0, 0.5, 0)
-
-local OpenTween = TweenService:Create(MainWindow, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-    Size = UDim2.new(0, 360, 0, 260),
-    Position = UDim2.new(0.5, -180, 0.5, -130)
-})
-OpenTween:Play()
-
--- Select first tab by default
-TabContents["Main"].Visible = true
-Tabs["Main"].BackgroundColor3 = Color3.fromRGB(45, 45, 55)
-Tabs["Main"].TextColor3 = Color3.fromRGB(255, 255, 255)
 
 -- Utility Functions
 local function GetDistance(Position)
@@ -601,7 +351,7 @@ local function CreateESP(Player)
     NameLabel.TextColor3 = getgenv().ESPColor
     NameLabel.TextStrokeTransparency = 0.5
     NameLabel.TextScaled = true
-    NameLabel.Font = Enum.Font.GothamBold
+    NameLabel.Font = Enum.Font.SourceSansBold
     NameLabel.Parent = Frame
     
     local DistanceLabel = Instance.new("TextLabel")
@@ -613,7 +363,7 @@ local function CreateESP(Player)
     DistanceLabel.TextColor3 = getgenv().ESPColor
     DistanceLabel.TextStrokeTransparency = 0.5
     DistanceLabel.TextScaled = true
-    DistanceLabel.Font = Enum.Font.Gotham
+    DistanceLabel.Font = Enum.Font.SourceSans
     DistanceLabel.Parent = Frame
     
     local HealthLabel = Instance.new("TextLabel")
@@ -625,7 +375,7 @@ local function CreateESP(Player)
     HealthLabel.TextColor3 = getgenv().ESPColor
     HealthLabel.TextStrokeTransparency = 0.5
     HealthLabel.TextScaled = true
-    HealthLabel.Font = Enum.Font.Gotham
+    HealthLabel.Font = Enum.Font.SourceSans
     HealthLabel.Parent = Frame
     
     ESP.Highlight = Highlight
@@ -726,105 +476,11 @@ local function UpdateLockOn()
     end
 end
 
--- UI Event Handlers
-CloseButton.MouseButton1Click:Connect(function()
-    ScreenGui:Destroy()
-end)
-
-MinimizeButton.MouseButton1Click:Connect(function()
-    IsMinimized = not IsMinimized
-    local MinimizeTween = TweenService:Create(MainWindow, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        Size = IsMinimized and UDim2.new(0, 360, 0, 30) or UDim2.new(0, 360, 0, 260)
-    })
-    MinimizeTween:Play()
-end)
-
--- Dragging functionality
-TitleBar.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        IsDragging = true
-        DragStart = input.Position
-        StartPos = MainWindow.Position
-    end
-end)
-
-UserInputService.InputChanged:Connect(function(input)
-    if IsDragging and input.UserInputType == Enum.UserInputType.MouseMovement then
-        local delta = input.Position - DragStart
-        MainWindow.Position = UDim2.new(StartPos.X.Scale, StartPos.X.Offset + delta.X, StartPos.Y.Scale, StartPos.Y.Offset + delta.Y)
-    end
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 then
-        IsDragging = false
-    end
-end)
-
--- Toggle Handlers
-ESPToggleButton.MouseButton1Click:Connect(function()
-    getgenv().ESPEnabled = not getgenv().ESPEnabled
-    setToggleVisual(ESPTrack, ESPKnob, getgenv().ESPEnabled)
-    
-    if getgenv().ESPEnabled then
-        for _, Player in pairs(Players:GetPlayers()) do
-            if Player ~= LocalPlayer then
-                CreateESP(Player)
-            end
-        end
-    else
-        for Player in pairs(ESP_Objects) do
-            RemoveESP(Player)
-        end
-    end
-end)
-
-LockOnToggleButton.MouseButton1Click:Connect(function()
-    getgenv().LockOnEnabled = not getgenv().LockOnEnabled
-    setToggleVisual(LockTrack, LockKnob, getgenv().LockOnEnabled)
-    
-    if not getgenv().LockOnEnabled then
-        Unlock()
-    end
-end)
-
--- Keybind Input Handlers
-local function sanitizeKeyName(s)
-    s = tostring(s or "")
-    s = s:gsub("%s+", "")
-    s = s:upper()
-    return s
-end
-
-local function setKeyFromInput(inputBox, envName)
-    local prev = getgenv()[envName]
-    local v = sanitizeKeyName(inputBox.Text)
-    if v == "" then
-        inputBox.Text = prev
-        return
-    end
-    if Enum.KeyCode[v] == nil then
-        inputBox.Text = prev
-        return
-    end
-    getgenv()[envName] = v
-    inputBox.Text = v
-end
-
-MenuKeyInput.FocusLost:Connect(function()
-    setKeyFromInput(MenuKeyInput, "MenuKey")
-end)
-
-LockOnKeyInput.FocusLost:Connect(function()
-    setKeyFromInput(LockOnKeyInput, "LockOnKey")
-end)
-
 -- Input Handling
 UserInputService.InputBegan:Connect(function(Input, GameProcessed)
     if GameProcessed then return end
     
-    -- Lock-On key
-    if Input.KeyCode == Enum.KeyCode[getgenv().LockOnKey] and getgenv().LockOnEnabled then
+    if Input.KeyCode == Enum.KeyCode.Q and getgenv().LockOnEnabled then
         if IsLocked then
             Unlock()
         else
@@ -835,10 +491,11 @@ UserInputService.InputBegan:Connect(function(Input, GameProcessed)
         end
     end
     
-    -- Menu key
-    if Input.KeyCode == Enum.KeyCode[getgenv().MenuKey] then
-        getgenv().UIVisible = not getgenv().UIVisible
-        ScreenGui.Enabled = getgenv().UIVisible
+    -- K key to toggle GUI
+    if Input.KeyCode == Enum.KeyCode.K then
+        if Window then
+            Window:Toggle()
+        end
     end
 end)
 
@@ -890,5 +547,11 @@ RunService.Heartbeat:Connect(function()
     UpdateLockOn()
 end)
 
-print("🌸 Hybrid MM2 Script Loaded!")
-print("Menu Key: " .. getgenv().MenuKey .. " | Lock-On Key: " .. getgenv().LockOnKey)
+-- Cleanup on character remove
+LocalPlayer.CharacterAdded:Connect(function(Character)
+    -- Reinitialize if needed
+end)
+
+print("Murder Mystery Script Loaded with Rayfield UI!")
+print("Press Q to lock onto nearest player")
+print("Use the Rayfield UI to toggle features")
