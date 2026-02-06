@@ -582,22 +582,102 @@ MiscTab:CreateToggle({
 -- Character Section
 MiscTab:CreateLabel("=== CHARACTER ===")
 
--- Invisible
+-- Animation System
+local animationAPI = loadstring(game:HttpGet("https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animation_module.lua"))()
+
+-- Free Emotes Toggle
 MiscTab:CreateToggle({
-    Name = "[Invisible]",
+    Name = "[Free Emotes]",
     CurrentValue = false,
     Callback = function(value)
-        getgenv().InvisibleEnabled = value
-        pcall(function()
-            local char = game.Players.LocalPlayer.Character
-            if char then
-                for _, part in ipairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.Transparency = value and 1 or 0
-                    end
-                end
+        getgenv().FreeEmotesEnabled = value
+        if value then
+            if animationAPI then
+                animationAPI.reanimate(true)
             end
+        else
+            if animationAPI then
+                animationAPI.reanimate(false)
+            end
+        end
+    end,
+})
+
+-- Emote Wheel Button
+MiscTab:CreateButton({
+    Name = "[Open Emote Wheel]",
+    Callback = function()
+        if not getgenv().FreeEmotesEnabled or not animationAPI then
+            Rayfield:Notify({
+                Title = "Error",
+                Content = "Enable Free Emotes first!",
+                Duration = 3
+            })
+            return
+        end
+        
+        -- Create emote wheel GUI
+        local emoteGui = Instance.new("ScreenGui")
+        emoteGui.Name = "EmoteWheel"
+        emoteGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+        
+        local frame = Instance.new("Frame")
+        frame.Size = UDim2.new(0, 300, 0, 300)
+        frame.Position = UDim2.new(0.5, -150, 0.5, -150)
+        frame.BackgroundColor3 = Color3.new(0.1, 0.1, 0.1)
+        frame.BorderSizePixel = 2
+        frame.BorderColor3 = Color3.new(0, 1, 0)
+        frame.BackgroundTransparency = 0.2
+        frame.Parent = emoteGui
+        
+        -- Emote buttons
+        local emotes = {
+            {name = "Dance", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/dance.lua"},
+            {name = "Wave", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/wave.lua"},
+            {name = "Laugh", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/laugh.lua"},
+            {name = "Cheer", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/cheer.lua"},
+            {name = "Point", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/point.lua"},
+            {name = "Sit", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/sit.lua"},
+            {name = "Sleep", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/sleep.lua"},
+            {name = "Flip", url = "https://raw.githubusercontent.com/jassy-src/murder-mystery/main/animations/flip.lua"}
+        }
+        
+        for i, emote in ipairs(emotes) do
+            local btn = Instance.new("TextButton")
+            btn.Size = UDim2.new(0, 80, 0, 30)
+            btn.Position = UDim2.new(0, (i-1)%3 * 100 + 10, 0, math.floor((i-1)/3) * 40 + 10)
+            btn.Text = emote.name
+            btn.BackgroundColor3 = Color3.new(0.2, 0.2, 0.2)
+            btn.TextColor3 = Color3.new(1, 1, 1)
+            btn.Parent = frame
+            
+            btn.MouseButton1Click:Connect(function()
+                if animationAPI and animationAPI.is_reanimated() then
+                    animationAPI.play_animation(emote.url, 1.0)
+                    Rayfield:Notify({
+                        Title = "Emote Played",
+                        Content = "Playing: " .. emote.name,
+                        Duration = 2
+                    })
+                end
+            end)
+        end
+        
+        -- Close button
+        local closeBtn = Instance.new("TextButton")
+        closeBtn.Size = UDim2.new(0, 60, 0, 25)
+        closeBtn.Position = UDim2.new(1, -70, 0, 5)
+        closeBtn.Text = "Close"
+        closeBtn.BackgroundColor3 = Color3.new(1, 0, 0)
+        closeBtn.TextColor3 = Color3.new(1, 1, 1)
+        closeBtn.Parent = frame
+        
+        closeBtn.MouseButton1Click:Connect(function()
+            emoteGui:Destroy()
         end)
+        
+        -- Auto close after 10 seconds
+        game:GetService("Debris"):AddItem(emoteGui, 10)
     end,
 })
 
@@ -667,9 +747,14 @@ CreditsDiscordTab:CreateButton({
         getgenv().FlyEnabled = false
         getgenv().AutoRespawnEnabled = false
         getgenv().AntiAFKEnabled = false
-        getgenv().InvisibleEnabled = false
         getgenv().AntiKnockbackEnabled = false
         getgenv().AntiCheatBypass = false
+        getgenv().FreeEmotesEnabled = false
+        
+        -- Stop animation system
+        if animationAPI then
+            animationAPI.reanimate(false)
+        end
         
         -- Clean up ESP
         pcall(function()
