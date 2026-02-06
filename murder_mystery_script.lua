@@ -13,8 +13,8 @@ if not Rayfield then
 end
 
 local Window = Rayfield:CreateWindow({
-    Name = "Jassy's MM2 Script",
-    LoadingTitle = "Jassy",
+    Name = "MM2 Script",
+    LoadingTitle = "MM2 Script",
     LoadingSubtitle = "Made by Jassy",
     ConfigurationSaving = {
         Enabled = false,
@@ -249,40 +249,6 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     end
 end)
-
--- Farm Tab
-local FarmTab = Window:CreateTab("Farm", 4483362458)
-
-local autofarm = false
-
-FarmTab:CreateLabel("Auto Farm has been removed")
-
--- Auto Collect Coins
-FarmTab:CreateToggle({
-    Name = "Auto Collect Coins",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().AutoCollectCoins = value
-        if value then
-            coroutine.wrap(function()
-                while getgenv().AutoCollectCoins do
-                    pcall(function()
-                        for _, coin in ipairs(game.Workspace:GetDescendants()) do
-                            if coin:IsA("Part") and coin.Name:lower():find("coin") then
-                                local char = game.Players.LocalPlayer.Character
-                                if char and char:FindFirstChild("HumanoidRootPart") then
-                                    char:FindFirstChild("HumanoidRootPart").CFrame = coin.CFrame
-                                    task.wait(0.5)
-                                end
-                            end
-                        end
-                    end)
-                    task.wait(1)
-                end
-            end)()
-        end
-    end,
-})
 
 -- Jassy Tab
 local JassyTab = Window:CreateTab("Jassy", 4483362458)
