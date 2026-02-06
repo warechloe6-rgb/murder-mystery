@@ -1,7 +1,7 @@
 -- Murder Mystery 2 Script with ESP and Aimbot
 -- Made by: Jassy
--- GitHub: https://github.com/jassy-src/murder-mystery
--- Version: 1.0
+-- Property of ScriptForge
+
 
 -- Test Rayfield UI Library
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
@@ -555,10 +555,13 @@ MiscTab:CreateToggle({
     end,
 })
 
--- Jassy Section
-MiscTab:CreateLabel("=== JASSY ===")
+-- Credits/Discord Tab
+local CreditsDiscordTab = Window:CreateTab("Credits/Discord", 4483362458)
 
-MiscTab:CreateButton({
+-- Jassy Section
+CreditsDiscordTab:CreateLabel("=== JASSY ===")
+
+CreditsDiscordTab:CreateButton({
     Name = "Copy Discord invite to clipboard",
     Callback = function()
         setclipboard("https://discord.gg/RhjnE4tEQ8")
@@ -570,7 +573,7 @@ MiscTab:CreateButton({
     end,
 })
 
-MiscTab:CreateButton({
+CreditsDiscordTab:CreateButton({
     Name = "GUI KEYBIND: K",
     Callback = function()
         Rayfield:Notify({
@@ -582,12 +585,12 @@ MiscTab:CreateButton({
 })
 
 -- Credits
-MiscTab:CreateLabel("Script made by: Jassy")
-MiscTab:CreateLabel("Version: 1.0")
-MiscTab:CreateLabel("Features: ESP, Aimbot, Farm, Vape Misc")
+CreditsDiscordTab:CreateLabel("Script made by: Jassy")
+CreditsDiscordTab:CreateLabel("Version: 1.0")
+CreditsDiscordTab:CreateLabel("Features: ESP, Aimbot, Misc")
 
 -- Status
-MiscTab:CreateLabel("Status: " .. (Rayfield and "Working" or "Error"))
+CreditsDiscordTab:CreateLabel("Status: " .. (Rayfield and "Working" or "Error"))
 
 -- Notification on load
 Rayfield:Notify({
