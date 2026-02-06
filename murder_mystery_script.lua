@@ -1,10 +1,11 @@
 -- Murder Mystery 2 Script with ESP and Aimbot
 -- Made by: Jassy
--- Property Of ScriptForge
-
+-- GitHub: https://github.com/jassy-src/murder-mystery/blob/main/murder_mystery_script.lua
+-- Version: 1.0
 
 -- Test Rayfield UI Library
 local Rayfield = loadstring(game:HttpGetAsync("https://raw.githubusercontent.com/jassy-src/murder-mystery/main/Rayfield.lua"))()
+setclipboard("loadstring(game:HttpGetAsync('https://raw.githubusercontent.com/jassy-src/murder-mystery/main/murder_mystery_script.lua'))()")
 print(Rayfield and "Rayfield loaded" or "Rayfield failed to load")
 
 if not Rayfield then
@@ -587,7 +588,7 @@ CreditsDiscordTab:CreateButton({
 -- Credits
 CreditsDiscordTab:CreateLabel("Script made by: Jassy")
 CreditsDiscordTab:CreateLabel("Version: 1.0")
-CreditsDiscordTab:CreateLabel("Features: ESP, Aimbot, Misc")
+CreditsDiscordTab:CreateLabel("Property Of ScriptForge")
 
 -- Status
 CreditsDiscordTab:CreateLabel("Status: " .. (Rayfield and "Working" or "Error"))
