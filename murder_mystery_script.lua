@@ -142,9 +142,9 @@ local Window
 do
     local ok, err = pcall(function()
         Window = Rayfield:CreateWindow({
-           Name = "jassy's mm2",
-           LoadingTitle = "jassy's mm2 ♡",
-           LoadingSubtitle = "♡ pink & hearty UI ♡",
+           Name = "MM2 Script",
+           LoadingTitle = "nucax",
+           LoadingSubtitle = "https://github.com/nucax",
            ConfigurationSaving = {
               Enabled = false,
            },
@@ -157,252 +157,19 @@ do
     end
 end
 
--- Main Tab with enhanced styling
-local MainTab = Window:CreateTab("🎯 Main", 4483362458)
+local Tab = Window:CreateTab("Main", 4483362458)
 
--- ESP Toggle with enhanced styling
-MainTab:CreateToggle({
-    Name = "👁️ ESP",
-    CurrentValue = true,
-    Flag = "ESP_Toggle",
-    Callback = function(value)
-        getgenv().ESPEnabled = value
-    end,
-})
+Tab:CreateLabel("MM2 Script")
+Tab:CreateLabel("This is the classic Rayfield UI loader.")
 
--- Lock-On Toggle with enhanced styling
-MainTab:CreateToggle({
-    Name = "🎯 Lock-On",
-    CurrentValue = true,
-    Flag = "LockOn_Toggle",
-    Callback = function(value)
-        getgenv().LockOnEnabled = value
-    end,
-})
-
--- Settings Tab with enhanced styling
-local SettingsTab = Window:CreateTab("⚙️ Settings", 4483362458)
-
--- ESP Color (default pink)
-SettingsTab:CreateColorPicker({
-    Name = "🎨 ESP Color",
-    Color = Color3.fromRGB(255, 105, 180), -- Hot pink
-    Flag = "ESP_Color",
-    Callback = function(value)
-        getgenv().ESPColor = value
-    end,
-})
-
--- Lock-On Smoothness
-SettingsTab:CreateSlider({
-    Name = "🔄 Aim Smoothness",
-    Range = {0, 1},
-    Increment = 0.05,
-    CurrentValue = 0.1,
-    Flag = "LockOn_Smoothness",
-    Callback = function(value)
-        getgenv().LockOnSmoothness = value
-    end,
-})
-
--- Lock-On FOV
-SettingsTab:CreateSlider({
-    Name = "📡 Aim FOV",
-    Range = {10, 100},
-    Increment = 5,
-    CurrentValue = 30,
-    Flag = "LockOn_FOV",
-    Callback = function(value)
-        getgenv().LockOnFOV = value
-    end,
-})
-
--- UI Theme Settings
-SettingsTab:CreateLabel("🎨 UI Theme Settings")
-
-SettingsTab:CreateColorPicker({
-    Name = "💫 UI Accent",
-    Color = Color3.fromRGB(255, 20, 147), -- Deep pink
-    Flag = "UI_Accent_Color",
-    Callback = function(value)
-        -- Update UI accent color if supported
-        getgenv().UIAccentColor = value
-    end,
-})
-
--- Info Tab with enhanced styling
-local InfoTab = Window:CreateTab("📋 Info", 4483362458)
-
-InfoTab:CreateLabel("♡ jassy's mm2 ♡")
-InfoTab:CreateLabel("━━━━━━━━━━━━━━━━━━━━━━")
-InfoTab:CreateLabel("🎮 Controls:")
-InfoTab:CreateLabel("Aimlock Key - Toggle the keybind panel")
-InfoTab:CreateLabel("(Type your key in the box)")
-InfoTab:CreateLabel("🖱️ Click and drag to move window")
-InfoTab:CreateLabel("━━━━━━━━━━━━━━━━━━━━━━")
-
-InfoTab:CreateButton({
-    Name = "🔗 Copy GitHub Link",
+Tab:CreateButton({
+    Name = "Close UI",
     Callback = function()
-        setclipboard("https://github.com/warechloe6-rgb/murder-mystery")
-        Rayfield:Notify({
-            Title = "🌸 GitHub Copied!",
-            Content = "Link copied to clipboard successfully!",
-            Duration = 5,
-            Image = 4483362458
-        })
+        pcall(function()
+            Rayfield:Destroy()
+        end)
     end,
 })
-
--- Initialize global variables with enhanced pink theme
-getgenv().ESPEnabled = true
-getgenv().LockOnEnabled = true
-getgenv().ESPColor = Color3.fromRGB(255, 105, 180) -- Hot pink
-getgenv().LockOnSmoothness = 0.1
-getgenv().LockOnFOV = 30
-getgenv().UIAccentColor = Color3.fromRGB(255, 20, 147) -- Deep pink
-
-getgenv().AimlockKey = getgenv().AimlockKey or "Q"
-
-do
-    local Players = game:GetService("Players")
-    local UserInputService = game:GetService("UserInputService")
-    local LocalPlayer = Players.LocalPlayer
-
-    local function sanitizeKeyName(s)
-        s = tostring(s or "")
-        s = s:gsub("%s+", "")
-        s = s:upper()
-        return s
-    end
-
-    local function isValidKeyName(s)
-        return Enum.KeyCode[s] ~= nil
-    end
-
-    local function ensureScreenGui()
-        local pg = LocalPlayer:WaitForChild("PlayerGui")
-        local existing = pg:FindFirstChild("JassyMM2_KeybindUI")
-        if existing then
-            return existing
-        end
-
-        local sg = Instance.new("ScreenGui")
-        sg.Name = "JassyMM2_KeybindUI"
-        sg.ResetOnSpawn = false
-        sg.Parent = pg
-        return sg
-    end
-
-    local KeybindGui = ensureScreenGui()
-
-    local Panel = Instance.new("Frame")
-    Panel.Name = "Panel"
-    Panel.Size = UDim2.new(0, 260, 0, 90)
-    Panel.Position = UDim2.new(0, 20, 0.5, -45)
-    Panel.BackgroundColor3 = Color3.fromRGB(255, 182, 213)
-    Panel.BackgroundTransparency = 0.12
-    Panel.BorderSizePixel = 0
-    Panel.Parent = KeybindGui
-
-    local PanelCorner = Instance.new("UICorner")
-    PanelCorner.CornerRadius = UDim.new(0, 14)
-    PanelCorner.Parent = Panel
-
-    local Stroke = Instance.new("UIStroke")
-    Stroke.Thickness = 1
-    Stroke.Transparency = 0.65
-    Stroke.Color = Color3.fromRGB(255, 255, 255)
-    Stroke.Parent = Panel
-
-    local Title = Instance.new("TextLabel")
-    Title.Name = "Title"
-    Title.Size = UDim2.new(1, -16, 0, 26)
-    Title.Position = UDim2.new(0, 8, 0, 6)
-    Title.BackgroundTransparency = 1
-    Title.Text = "♡ jassy's mm2 ♡"
-    Title.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Title.TextStrokeTransparency = 0.7
-    Title.Font = Enum.Font.GothamBold
-    Title.TextSize = 16
-    Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.Parent = Panel
-
-    local Label = Instance.new("TextLabel")
-    Label.Name = "Label"
-    Label.Size = UDim2.new(0, 160, 0, 22)
-    Label.Position = UDim2.new(0, 10, 0, 40)
-    Label.BackgroundTransparency = 1
-    Label.Text = "aimlock keybind:"
-    Label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Label.TextStrokeTransparency = 0.75
-    Label.Font = Enum.Font.Gotham
-    Label.TextSize = 14
-    Label.TextXAlignment = Enum.TextXAlignment.Left
-    Label.Parent = Panel
-
-    local Box = Instance.new("TextBox")
-    Box.Name = "KeyBox"
-    Box.Size = UDim2.new(0, 70, 0, 22)
-    Box.Position = UDim2.new(1, -80, 0, 40)
-    Box.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
-    Box.BackgroundTransparency = 0.18
-    Box.BorderSizePixel = 0
-    Box.Text = getgenv().AimlockKey
-    Box.PlaceholderText = "Q"
-    Box.ClearTextOnFocus = true
-    Box.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Box.Font = Enum.Font.GothamBold
-    Box.TextSize = 14
-    Box.Parent = Panel
-
-    local BoxCorner = Instance.new("UICorner")
-    BoxCorner.CornerRadius = UDim.new(0, 8)
-    BoxCorner.Parent = Box
-
-    local Hint = Instance.new("TextLabel")
-    Hint.Name = "Hint"
-    Hint.Size = UDim2.new(1, -16, 0, 18)
-    Hint.Position = UDim2.new(0, 10, 1, -22)
-    Hint.BackgroundTransparency = 1
-    Hint.Text = "(press it to toggle this panel)"
-    Hint.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Hint.TextStrokeTransparency = 0.8
-    Hint.Font = Enum.Font.Gotham
-    Hint.TextSize = 12
-    Hint.TextXAlignment = Enum.TextXAlignment.Left
-    Hint.Parent = Panel
-
-    local function applyKeyFromBox()
-        local prev = getgenv().AimlockKey
-        local v = sanitizeKeyName(Box.Text)
-        if v == "" then
-            Box.Text = prev
-            return
-        end
-        if not isValidKeyName(v) then
-            Box.Text = prev
-            return
-        end
-        getgenv().AimlockKey = v
-        Box.Text = v
-    end
-
-    Box.FocusLost:Connect(function()
-        applyKeyFromBox()
-    end)
-
-    UserInputService.InputBegan:Connect(function(input, gameProcessed)
-        if gameProcessed then
-            return
-        end
-
-        local aimKey = sanitizeKeyName(getgenv().AimlockKey)
-        if aimKey ~= "" and Enum.KeyCode[aimKey] and input.KeyCode == Enum.KeyCode[aimKey] then
-            Panel.Visible = not Panel.Visible
-        end
-    end)
-end
 
 return
 
