@@ -579,27 +579,6 @@ MiscTab:CreateToggle({
     end,
 })
 
--- Character Section
-MiscTab:CreateLabel("=== CHARACTER ===")
-
--- Invisible
-MiscTab:CreateToggle({
-    Name = "[Invisible]",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().InvisibleEnabled = value
-        pcall(function()
-            local char = game.Players.LocalPlayer.Character
-            if char then
-                for _, part in ipairs(char:GetDescendants()) do
-                    if part:IsA("BasePart") then
-                        part.Transparency = value and 1 or 0
-                    end
-                end
-            end
-        end)
-    end,
-})
 
 -- Anti Knockback
 MiscTab:CreateToggle({
