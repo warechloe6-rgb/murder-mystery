@@ -1,30 +1,25 @@
 -- Roblox Murder Mystery Script - Rayfield UI Version
 print("[jassy's mm2] boot")
 
-local function _genv()
-    if typeof(getgenv) == "function" then
-        return getgenv()
-    end
-    return _G
-end
-
-local function _httpget(url)
-    if typeof(game) == "Instance" and typeof(game.HttpGet) == "function" then
-        return game:HttpGet(url)
-    end
-    if typeof(game) == "Instance" and typeof(game.HttpGetAsync) == "function" then
-        return game:HttpGetAsync(url)
-    end
-    error("HttpGet is not available in this environment")
-end
-
 local Rayfield
 do
     local ok, res = pcall(function()
-        local src = _httpget("https://sirius.menu/rayfield")
+        local src
+        if typeof(game) == "Instance" and typeof(game.HttpGet) == "function" then
+            src = game:HttpGet("https://sirius.menu/rayfield")
+        elseif typeof(game) == "Instance" and typeof(game.HttpGetAsync) == "function" then
+            src = game:HttpGetAsync("https://sirius.menu/rayfield")
+        else
+            error("HttpGet/HttpGetAsync not available")
+        end
+
         local fn = loadstring(src)
+        if typeof(fn) ~= "function" then
+            error("loadstring failed")
+        end
         return fn()
     end)
+
     if not ok or not res then
         warn("[jassy's mm2] Rayfield failed to load:", res)
         return
