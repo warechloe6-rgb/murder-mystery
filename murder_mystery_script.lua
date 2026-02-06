@@ -11,20 +11,20 @@ OpeningSound:Play()
 
 local Window = Rayfield:CreateWindow({
    Name = "Murder Mystery Script",
-   LoadingTitle = "Sakura Blossom",
-   LoadingSubtitle = "MM2 ESP & Lock-On",
+   LoadingTitle = "🌸 Sakura MM2 🌸",
+   LoadingSubtitle = "ESP & Lock-On System",
    ConfigurationSaving = {
       Enabled = false,
    },
-   Background = "rbxassetid://16027581694" -- Sakura background image ID
+   Background = "rbxassetid://75487938851287" -- Your custom background image
 })
 
--- Main Tab with pink theme
-local MainTab = Window:CreateTab("Main", 4483362458)
+-- Main Tab with enhanced styling
+local MainTab = Window:CreateTab("🎯 Main", 4483362458)
 
--- ESP Toggle with pink styling
+-- ESP Toggle with enhanced styling
 MainTab:CreateToggle({
-    Name = "ESP",
+    Name = "👁️ ESP",
     CurrentValue = true,
     Flag = "ESP_Toggle",
     Callback = function(value)
@@ -32,9 +32,9 @@ MainTab:CreateToggle({
     end,
 })
 
--- Lock-On Toggle with pink styling
+-- Lock-On Toggle with enhanced styling
 MainTab:CreateToggle({
-    Name = "Lock-On",
+    Name = "🎯 Lock-On",
     CurrentValue = true,
     Flag = "LockOn_Toggle",
     Callback = function(value)
@@ -42,13 +42,13 @@ MainTab:CreateToggle({
     end,
 })
 
--- Settings Tab with enhanced pink theme
-local SettingsTab = Window:CreateTab("Settings", 4483362458)
+-- Settings Tab with enhanced styling
+local SettingsTab = Window:CreateTab("⚙️ Settings", 4483362458)
 
 -- ESP Color (default pink)
 SettingsTab:CreateColorPicker({
-    Name = "ESP Color",
-    Color = Color3.fromRGB(255, 182, 193), -- Light pink
+    Name = "🎨 ESP Color",
+    Color = Color3.fromRGB(255, 105, 180), -- Hot pink
     Flag = "ESP_Color",
     Callback = function(value)
         getgenv().ESPColor = value
@@ -57,7 +57,7 @@ SettingsTab:CreateColorPicker({
 
 -- Lock-On Smoothness
 SettingsTab:CreateSlider({
-    Name = "Lock-On Smoothness",
+    Name = "🔄 Aim Smoothness",
     Range = {0, 1},
     Increment = 0.05,
     CurrentValue = 0.1,
@@ -69,7 +69,7 @@ SettingsTab:CreateSlider({
 
 -- Lock-On FOV
 SettingsTab:CreateSlider({
-    Name = "Lock-On FOV",
+    Name = "📡 Aim FOV",
     Range = {10, 100},
     Increment = 5,
     CurrentValue = 30,
@@ -80,11 +80,11 @@ SettingsTab:CreateSlider({
 })
 
 -- UI Theme Settings
-SettingsTab:CreateLabel("UI Theme Settings")
+SettingsTab:CreateLabel("🎨 UI Theme Settings")
 
 SettingsTab:CreateColorPicker({
-    Name = "UI Accent Color",
-    Color = Color3.fromRGB(255, 192, 203), -- Pink accent
+    Name = "💫 UI Accent",
+    Color = Color3.fromRGB(255, 20, 147), -- Deep pink
     Flag = "UI_Accent_Color",
     Callback = function(value)
         -- Update UI accent color if supported
@@ -92,35 +92,37 @@ SettingsTab:CreateColorPicker({
     end,
 })
 
--- Info Tab
-local InfoTab = Window:CreateTab("Info", 4483362458)
+-- Info Tab with enhanced styling
+local InfoTab = Window:CreateTab("📋 Info", 4483362458)
 
 InfoTab:CreateLabel("🌸 Sakura MM2 Script 🌸")
-InfoTab:CreateLabel("Controls:")
+InfoTab:CreateLabel("━━━━━━━━━━━━━━━━━━━━━━")
+InfoTab:CreateLabel("🎮 Controls:")
 InfoTab:CreateLabel("Q - Lock onto nearest player")
 InfoTab:CreateLabel("K - Toggle GUI")
-InfoTab:CreateLabel("Click and drag to move window")
+InfoTab:CreateLabel("🖱️ Click and drag to move window")
+InfoTab:CreateLabel("━━━━━━━━━━━━━━━━━━━━━━")
 
 InfoTab:CreateButton({
-    Name = "Copy GitHub Link",
+    Name = "🔗 Copy GitHub Link",
     Callback = function()
         setclipboard("https://github.com/warechloe6-rgb/murder-mystery")
         Rayfield:Notify({
-            Title = "🌸 GitHub",
-            Content = "Copied GitHub link to clipboard!",
+            Title = "🌸 GitHub Copied!",
+            Content = "Link copied to clipboard successfully!",
             Duration = 5,
             Image = 4483362458
         })
     end,
 })
 
--- Initialize global variables with pink theme
+-- Initialize global variables with enhanced pink theme
 getgenv().ESPEnabled = true
 getgenv().LockOnEnabled = true
-getgenv().ESPColor = Color3.fromRGB(255, 182, 193) -- Light pink
+getgenv().ESPColor = Color3.fromRGB(255, 105, 180) -- Hot pink
 getgenv().LockOnSmoothness = 0.1
 getgenv().LockOnFOV = 30
-getgenv().UIAccentColor = Color3.fromRGB(255, 192, 203) -- Pink accent
+getgenv().UIAccentColor = Color3.fromRGB(255, 20, 147) -- Deep pink
 
 -- Services
 local Players = game:GetService("Players")
