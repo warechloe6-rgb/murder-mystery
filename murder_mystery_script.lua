@@ -307,6 +307,9 @@ FarmTab:CreateToggle({
 -- Misc Tab
 local MiscTab = Window:CreateTab("Misc", 4483362458)
 
+-- Movement Section
+MiscTab:CreateLabel("=== MOVEMENT ===")
+
 -- No Clip
 MiscTab:CreateToggle({
     Name = "No Clip",
@@ -333,6 +336,118 @@ MiscTab:CreateToggle({
     end,
 })
 
+-- Fly
+MiscTab:CreateToggle({
+    Name = "Fly",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().FlyEnabled = value
+        local flySpeed = 50
+        local flyDirection = Vector3.new(0, 0, 0)
+        
+        if value then
+            local char = game.Players.LocalPlayer.Character
+            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+            local rootPart = char and char:FindFirstChild("HumanoidRootPart")
+            
+            if humanoid and rootPart then
+                local bv = Instance.new("BodyVelocity")
+                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                bv.Velocity = Vector3.new(0, 0, 0)
+                bv.Parent = rootPart
+                getgenv().FlyBV = bv
+                
+                local bg = Instance.new("BodyGyro")
+                bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                bg.P = 10000
+                bg.Parent = rootPart
+                getgenv().FlyBG = bg
+                
+                coroutine.wrap(function()
+                    while getgenv().FlyEnabled do
+                        pcall(function()
+                            local cam = workspace.CurrentCamera
+                            local moveDirection = Vector3.new(0, 0, 0)
+                            
+                            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
+                                moveDirection = moveDirection + cam.CFrame.LookVector
+                            end
+                            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.S) then
+                                moveDirection = moveDirection - cam.CFrame.LookVector
+                            end
+                            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.A) then
+                                moveDirection = moveDirection - cam.CFrame.RightVector
+                            end
+                            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.D) then
+                                moveDirection = moveDirection + cam.CFrame.RightVector
+                            end
+                            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.Space) then
+                                moveDirection = moveDirection + Vector3.new(0, 1, 0)
+                            end
+                            if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftShift) then
+                                moveDirection = moveDirection - Vector3.new(0, 1, 0)
+                            end
+                            
+                            if moveDirection.Magnitude > 0 then
+                                moveDirection = moveDirection.Unit * flySpeed
+                                getgenv().FlyBV.Velocity = moveDirection
+                            else
+                                getgenv().FlyBV.Velocity = Vector3.new(0, 0, 0)
+                            end
+                            
+                            getgenv().FlyBG.CFrame = cam.CFrame
+                        end)
+                        task.wait()
+                    end
+                end)()
+            end
+        else
+            if getgenv().FlyBV then
+                getgenv().FlyBV:Destroy()
+                getgenv().FlyBV = nil
+            end
+            if getgenv().FlyBG then
+                getgenv().FlyBG:Destroy()
+                getgenv().FlyBG = nil
+            end
+        end
+    end,
+})
+
+-- Speed Boost
+MiscTab:CreateSlider({
+    Name = "Speed Boost",
+    Range = {16, 200},
+    Increment = 4,
+    CurrentValue = 16,
+    Callback = function(value)
+        getgenv().WalkSpeed = value
+        pcall(function()
+            local char = game.Players.LocalPlayer.Character
+            if char and char:FindFirstChildOfClass("Humanoid") then
+                char:FindFirstChildOfClass("Humanoid").WalkSpeed = value
+            end
+        end)
+    end,
+})
+
+-- Jump Power
+MiscTab:CreateSlider({
+    Name = "Jump Power",
+    Range = {50, 200},
+    Increment = 10,
+    CurrentValue = 50,
+    Callback = function(value)
+        getgenv().JumpPower = value
+        pcall(function()
+            local char = game.Players.LocalPlayer.Character
+            if char and char:FindFirstChildOfClass("Humanoid") then
+                char:FindFirstChildOfClass("Humanoid").JumpPower = value
+            end
+        end)
+    end,
+})
+
 -- Infinite Jump
 MiscTab:CreateToggle({
     Name = "Infinite Jump",
@@ -348,19 +463,205 @@ game:GetService("UserInputService").JumpRequest:Connect(function()
     end
 end)
 
--- Speed Boost
-MiscTab:CreateSlider({
-    Name = "Speed Boost",
-    Range = {16, 100},
-    Increment = 4,
-    CurrentValue = 16,
+-- Visual Section
+MiscTab:CreateLabel("=== VISUAL ===")
+
+-- Full Bright
+MiscTab:CreateToggle({
+    Name = "Full Bright",
+    CurrentValue = false,
     Callback = function(value)
+        getgenv().FullBrightEnabled = value
+        if value then
+            getgenv().FullBrightLighting = game:GetService("Lighting")
+            getgenv().OriginalBrightness = getgenv().FullBrightLighting.Brightness
+            getgenv().OriginalTimeOfDay = getgenv().FullBrightLighting.TimeOfDay
+            getgenv().OriginalFogEnd = getgenv().FullBrightLighting.FogEnd
+            
+            getgenv().FullBrightLighting.Brightness = 2
+            getgenv().FullBrightLighting.TimeOfDay = "14:00:00"
+            getgenv().FullBrightLighting.FogEnd = 100000
+        else
+            if getgenv().FullBrightLighting then
+                getgenv().FullBrightLighting.Brightness = getgenv().OriginalBrightness or 1
+                getgenv().FullBrightLighting.TimeOfDay = getgenv().OriginalTimeOfDay or "14:00:00"
+                getgenv().FullBrightLighting.FogEnd = getgenv().OriginalFogEnd or 1000
+            end
+        end
+    end,
+})
+
+-- No Fog
+MiscTab:CreateToggle({
+    Name = "No Fog",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().NoFogEnabled = value
+        if value then
+            getgenv().OriginalFogEnd = game:GetService("Lighting").FogEnd
+            game:GetService("Lighting").FogEnd = 100000
+        else
+            if getgenv().OriginalFogEnd then
+                game:GetService("Lighting").FogEnd = getgenv().OriginalFogEnd
+            end
+        end
+    end,
+})
+
+-- Remove Grass
+MiscTab:CreateToggle({
+    Name = "Remove Grass",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().RemoveGrassEnabled = value
+        if value then
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("Terrain") then
+                    obj:Clear()
+                end
+            end
+        end
+    end,
+})
+
+-- Utility Section
+MiscTab:CreateLabel("=== UTILITY ===")
+
+-- Auto Respawn
+MiscTab:CreateToggle({
+    Name = "Auto Respawn",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().AutoRespawnEnabled = value
+        if value then
+            coroutine.wrap(function()
+                while getgenv().AutoRespawnEnabled do
+                    pcall(function()
+                        local char = game.Players.LocalPlayer.Character
+                        local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+                        if humanoid and humanoid.Health <= 0 then
+                            game.Players.LocalPlayer:LoadCharacter()
+                        end
+                    end)
+                    task.wait(1)
+                end
+            end)()
+        end
+    end,
+})
+
+-- Anti AFK
+MiscTab:CreateToggle({
+    Name = "Anti AFK",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().AntiAFKEnabled = value
+        if value then
+            getgenv().AntiAFKConnection = game:GetService("Players").LocalPlayer.Idled:Connect(function()
+                game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+                task.wait(1)
+                game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), workspace.CurrentCamera.CFrame)
+            end)
+        else
+            if getgenv().AntiAFKConnection then
+                getgenv().AntiAFKConnection:Disconnect()
+                getgenv().AntiAFKConnection = nil
+            end
+        end
+    end,
+})
+
+-- Click Teleport
+MiscTab:CreateToggle({
+    Name = "Click Teleport",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().ClickTeleportEnabled = value
+        if value then
+            getgenv().ClickTeleportConnection = game:GetService("UserInputService").InputBegan:Connect(function(input, gameProcessed)
+                if gameProcessed then return end
+                if input.UserInputType == Enum.UserInputType.MouseButton1 and game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.LeftControl) then
+                    local char = game.Players.LocalPlayer.Character
+                    if char and char:FindFirstChild("HumanoidRootPart") then
+                        local mousePos = game:GetService("UserInputService"):GetMouseLocation()
+                        local ray = workspace.CurrentCamera:ViewportPointToRay(mousePos.X, mousePos.Y)
+                        local targetPos = ray.Origin + ray.Direction * 1000
+                        char:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(targetPos)
+                    end
+                end
+            end)
+        else
+            if getgenv().ClickTeleportConnection then
+                getgenv().ClickTeleportConnection:Disconnect()
+                getgenv().ClickTeleportConnection = nil
+            end
+        end
+    end,
+})
+
+-- Character Section
+MiscTab:CreateLabel("=== CHARACTER ===")
+
+-- God Mode
+MiscTab:CreateToggle({
+    Name = "God Mode",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().GodModeEnabled = value
+        if value then
+            coroutine.wrap(function()
+                while getgenv().GodModeEnabled do
+                    pcall(function()
+                        local char = game.Players.LocalPlayer.Character
+                        if char and char:FindFirstChildOfClass("Humanoid") then
+                            char:FindFirstChildOfClass("Humanoid").Health = char:FindFirstChildOfClass("Humanoid").MaxHealth
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)()
+        end
+    end,
+})
+
+-- Invisible
+MiscTab:CreateToggle({
+    Name = "Invisible",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().InvisibleEnabled = value
         pcall(function()
             local char = game.Players.LocalPlayer.Character
-            if char and char:FindFirstChildOfClass("Humanoid") then
-                char:FindFirstChildOfClass("Humanoid").WalkSpeed = value
+            if char then
+                for _, part in ipairs(char:GetDescendants()) do
+                    if part:IsA("BasePart") then
+                        part.Transparency = value and 1 or 0
+                    end
+                end
             end
         end)
+    end,
+})
+
+-- Anti Knockback
+MiscTab:CreateToggle({
+    Name = "Anti Knockback",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().AntiKnockbackEnabled = value
+        if value then
+            coroutine.wrap(function()
+                while getgenv().AntiKnockbackEnabled do
+                    pcall(function()
+                        local char = game.Players.LocalPlayer.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                            char:FindFirstChild("HumanoidRootPart").Velocity = Vector3.new(0, 0, 0)
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)()
+        end
     end,
 })
 
