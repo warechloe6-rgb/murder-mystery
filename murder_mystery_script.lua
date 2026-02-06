@@ -1,13 +1,21 @@
 -- Murder Mystery 2 Script with ESP and Aimbot
+-- Made by: Jassy
 -- GitHub: https://github.com/warechloe6-rgb/murder-mystery
 -- Version: 1.0
 
+-- Test Rayfield UI Library
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+print(Rayfield and "Rayfield loaded" or "Rayfield failed to load")
+
+if not Rayfield then
+    game.Players.LocalPlayer:Kick("Rayfield UI library is currently down. Please try again later.")
+    return
+end
 
 local Window = Rayfield:CreateWindow({
-    Name = "MM2 Script",
-    LoadingTitle = "warechloe6-rgb",
-    LoadingSubtitle = "https://github.com/warechloe6-rgb/murder-mystery",
+    Name = "Jassy's MM2 Script",
+    LoadingTitle = "Jassy",
+    LoadingSubtitle = "Made by Jassy",
     ConfigurationSaving = {
         Enabled = false,
     }
@@ -356,8 +364,8 @@ MiscTab:CreateSlider({
     end,
 })
 
--- GitHub Tab
-local GitHubTab = Window:CreateTab("GitHub", 4483362458)
+-- Jassy Tab
+local JassyTab = Window:CreateTab("Jassy", 4483362458)
 
 GitHubTab:CreateButton({
     Name = "Copy Discord invite to clipboard",
@@ -371,10 +379,9 @@ GitHubTab:CreateButton({
     end,
 })
 
-GitHubTab:CreateButton({
+JassyTab:CreateButton({
     Name = "GUI KEYBIND: K",
     Callback = function()
-        -- This button is just for display, no action needed unless a keybind system is implemented
         Rayfield:Notify({
             Title = "Keybind",
             Content = "GUI Keybind is K",
@@ -383,14 +390,31 @@ GitHubTab:CreateButton({
     end,
 })
 
+JassyTab:CreateButton({
+    Name = "Get Script Loadstring",
+    Callback = function()
+        setclipboard("loadstring(game:HttpGetAsync('https://raw.githubusercontent.com/warechloe6-rgb/murder-mystery/main/murder_mystery_script.lua'))()")
+        Rayfield:Notify({
+            Title = "Loadstring",
+            Content = "Copied loadstring to clipboard!",
+            Duration = 5
+        })
+    end,
+})
+
 -- Credits
-GitHubTab:CreateLabel("Script made by: jassy")
-GitHubTab:CreateLabel("Version: 1.0")
-GitHubTab:CreateLabel("Features: ESP, Aimbot, Farm, Misc")
+JassyTab:CreateLabel("Script made by: Jassy")
+JassyTab:CreateLabel("Version: 1.0")
+JassyTab:CreateLabel("Features: ESP, Aimbot, Farm, Misc")
+
+-- Status
+JassyTab:CreateLabel("Status: " .. (Rayfield and "Working" or "Error"))
 
 -- Notification on load
 Rayfield:Notify({
-    Title = "MM2 Script Loaded",
-    Content = "warechloe6-rgb MM2 Script with ESP and Aimbot",
+    Title = "Jassy's MM2 Script",
+    Content = "Script loaded successfully!",
     Duration = 5
 })
+
+print("Jassy's MM2 Script loaded - Rayfield status: " .. (Rayfield and "Working" or "Error"))
