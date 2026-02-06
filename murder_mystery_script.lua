@@ -1,7 +1,5 @@
--- Murder Mystery 2 Script with ESP and Aimbot
--- Made by: Jassy
--- Version: 1.0
--- Property Of ScriptForge
+-- Made by Jassy
+-- Property of ScriptForge
 
 -- Test Rayfield UI Library
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
