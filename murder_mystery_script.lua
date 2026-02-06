@@ -360,31 +360,31 @@ MiscTab:CreateSlider({
 local GitHubTab = Window:CreateTab("GitHub", 4483362458)
 
 GitHubTab:CreateButton({
-    Name = "Copy GitHub to Clipboard",
+    Name = "Copy Discord invite to clipboard",
     Callback = function()
-        setclipboard("https://github.com/warechloe6-rgb/murder-mystery")
+        setclipboard("https://discord.gg/RhjnE4tEQ8")
         Rayfield:Notify({
-            Title = "GitHub",
-            Content = "Copied GitHub link to clipboard!",
+            Title = "Discord",
+            Content = "Copied Discord invite to clipboard!",
             Duration = 5
         })
     end,
 })
 
 GitHubTab:CreateButton({
-    Name = "Get Latest Script",
+    Name = "GUI KEYBIND: K",
     Callback = function()
-        setclipboard("loadstring(game:HttpGetAsync('https://raw.githubusercontent.com/warechloe6-rgb/murder-mystery/main/murder_mystery_script.lua'))()")
+        -- This button is just for display, no action needed unless a keybind system is implemented
         Rayfield:Notify({
-            Title = "Script Link",
-            Content = "Copied latest script link to clipboard!",
+            Title = "Keybind",
+            Content = "GUI Keybind is K",
             Duration = 5
         })
     end,
 })
 
 -- Credits
-GitHubTab:CreateLabel("Script by warechloe6-rgb")
+GitHubTab:CreateLabel("Script made by: jassy")
 GitHubTab:CreateLabel("Version: 1.0")
 GitHubTab:CreateLabel("Features: ESP, Aimbot, Farm, Misc")
 
