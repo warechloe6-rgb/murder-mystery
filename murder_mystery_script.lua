@@ -1,265 +1,360 @@
--- Roblox Murder Mystery Script - ESP & Lock-On with Rayfield UI
-print("[jassy's mm2] boot")
+-- Murder Mystery 2 Script with ESP and Aimbot
+-- GitHub: https://github.com/DarkNetworks/Orca
+-- Version: 1.0
 
-local function _showInjectedPing()
-    pcall(function()
-        local Players = game:GetService("Players")
-        local lp = Players.LocalPlayer
-        if not lp then return end
+local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
-        local pg = lp:WaitForChild("PlayerGui")
-        local sg = pg:FindFirstChild("JassyMM2_Ping")
-        if not sg then
-            sg = Instance.new("ScreenGui")
-            sg.Name = "JassyMM2_Ping"
-            sg.ResetOnSpawn = false
-            sg.Parent = pg
-        end
-
-        if sg:FindFirstChild("Label") then
-            return
-        end
-
-        local lbl = Instance.new("TextLabel")
-        lbl.Name = "Label"
-        lbl.BackgroundTransparency = 0.35
-        lbl.BackgroundColor3 = Color3.fromRGB(255, 105, 180)
-        lbl.BorderSizePixel = 0
-        lbl.Size = UDim2.new(0, 220, 0, 26)
-        lbl.Position = UDim2.new(0, 12, 0, 12)
-        lbl.Font = Enum.Font.GothamBold
-        lbl.TextSize = 14
-        lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
-        lbl.Text = "♡ jassy's mm2 injected ♡"
-        lbl.Parent = sg
-
-        local c = Instance.new("UICorner")
-        c.CornerRadius = UDim.new(0, 10)
-        c.Parent = lbl
-    end)
-end
-
-_showInjectedPing()
-
-local function _showError(title, msg)
-    pcall(function()
-        local Players = game:GetService("Players")
-        local lp = Players.LocalPlayer
-        local parent = game:GetService("CoreGui")
-        if lp then
-            local pg = lp:FindFirstChild("PlayerGui")
-            if pg then
-                parent = pg
-            end
-        end
-
-        local sg = Instance.new("ScreenGui")
-        sg.Name = "JassyMM2_Error"
-        sg.ResetOnSpawn = false
-        sg.Parent = parent
-
-        local f = Instance.new("Frame")
-        f.Size = UDim2.new(0, 420, 0, 140)
-        f.Position = UDim2.new(0.5, -210, 0.2, 0)
-        f.BackgroundColor3 = Color3.fromRGB(30, 10, 20)
-        f.BorderSizePixel = 0
-        f.Parent = sg
-
-        local c = Instance.new("UICorner")
-        c.CornerRadius = UDim.new(0, 12)
-        c.Parent = f
-
-        local s = Instance.new("UIStroke")
-        s.Thickness = 1
-        s.Transparency = 0.4
-        s.Color = Color3.fromRGB(255, 105, 180)
-        s.Parent = f
-
-        local t = Instance.new("TextLabel")
-        t.BackgroundTransparency = 1
-        t.Size = UDim2.new(1, -20, 0, 28)
-        t.Position = UDim2.new(0, 10, 0, 8)
-        t.Font = Enum.Font.GothamBold
-        t.TextSize = 18
-        t.TextXAlignment = Enum.TextXAlignment.Left
-        t.TextColor3 = Color3.fromRGB(255, 255, 255)
-        t.Text = tostring(title or "Error")
-        t.Parent = f
-
-        local b = Instance.new("TextLabel")
-        b.BackgroundTransparency = 1
-        b.Size = UDim2.new(1, -20, 1, -46)
-        b.Position = UDim2.new(0, 10, 0, 40)
-        b.Font = Enum.Font.Gotham
-        b.TextSize = 14
-        b.TextXAlignment = Enum.TextXAlignment.Left
-        b.TextYAlignment = Enum.TextYAlignment.Top
-        b.TextWrapped = true
-        b.TextColor3 = Color3.fromRGB(255, 220, 235)
-        b.Text = tostring(msg or "")
-        b.Parent = f
-    end)
-end
-
-local Rayfield
-do
-    local ok, res = pcall(function()
-        local src
-        if typeof(game) == "Instance" and typeof(game.HttpGet) == "function" then
-            src = game:HttpGet("https://sirius.menu/rayfield")
-        elseif typeof(game) == "Instance" and typeof(game.HttpGetAsync) == "function" then
-            src = game:HttpGetAsync("https://sirius.menu/rayfield")
-        else
-            error("HttpGet/HttpGetAsync not available")
-        end
-
-        local fn = loadstring(src)
-        if typeof(fn) ~= "function" then
-            error("loadstring failed")
-        end
-        return fn()
-    end)
-
-    if not ok or not res then
-        warn("[jassy's mm2] Rayfield failed to load:", res)
-        _showError("jassy's mm2", "Rayfield failed to load.\n\n" .. tostring(res))
-        return
-    end
-    Rayfield = res
-end
-
--- Play opening sound effect
-local SoundService = game:GetService("SoundService")
-local OpeningSound = Instance.new("Sound")
-OpeningSound.SoundId = "rbxassetid://132529299748496"
-OpeningSound.Volume = 0.5
-OpeningSound.Parent = SoundService
-pcall(function()
-    OpeningSound:Play()
-end)
-
-local Window
-do
-    local ok, err = pcall(function()
-        Window = Rayfield:CreateWindow({
-           Name = "MM2 Script",
-           LoadingTitle = "jassy's mm2",
-           LoadingSubtitle = "https://github.com/warechloe6-rgb",
-           ConfigurationSaving = {
-              Enabled = false,
-           },
-           Background = "rbxassetid://75487938851287"
-        })
-    end)
-    if not ok or not Window then
-        _showError("jassy's mm2", "Rayfield window failed to create.\n\n" .. tostring(err))
-        return
-    end
-end
-
--- Services
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Workspace = game:GetService("Workspace")
-local Camera = Workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-
--- Variables
-local LockedTarget = nil
-local ESP_Objects = {}
-local IsLocked = false
-
--- ESP Folder
-local ESPFolder = Instance.new("Folder")
-ESPFolder.Name = "MM2_ESP_Highlights"
-ESPFolder.Parent = game.CoreGui
-
--- Initialize globals
-getgenv().ESPEnabled = false
-getgenv().LockOnEnabled = false
-getgenv().ESPColor = Color3.fromRGB(255, 105, 180)
-getgenv().LockOnSmoothness = 0.1
-getgenv().LockOnFOV = 30
+local Window = Rayfield:CreateWindow({
+    Name = "MM2 Script",
+    LoadingTitle = "DarkNetworks",
+    LoadingSubtitle = "https://github.com/DarkNetworks/Orca",
+    ConfigurationSaving = {
+        Enabled = false,
+    }
+})
 
 -- ESP Tab
 local ESPTab = Window:CreateTab("ESP", 4483362458)
 
+-- Role ESP Toggle
 ESPTab:CreateToggle({
-    Name = "Player ESP",
+    Name = "Role ESP",
     CurrentValue = false,
-    Callback = function(Value)
-        getgenv().ESPEnabled = Value
-        if Value then
-            for _, Player in pairs(Players:GetPlayers()) do
-                if Player ~= LocalPlayer then
-                    CreateESP(Player)
+    Callback = function(value)
+        getgenv().RoleESPEnabled = value
+    end,
+})
+
+-- Name ESP Toggle
+ESPTab:CreateToggle({
+    Name = "Name ESP",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().NameESPEnabled = value
+    end,
+})
+
+-- Distance ESP Toggle
+ESPTab:CreateToggle({
+    Name = "Distance ESP",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().DistanceESPEnabled = value
+    end,
+})
+
+-- ESP Folder for Highlights
+local ESPFolder = Instance.new("Folder")
+ESPFolder.Name = "MM2_RoleESP_Highlights"
+ESPFolder.Parent = game.CoreGui
+
+-- Name ESP Folder
+local NameESPFolder = Instance.new("Folder")
+NameESPFolder.Name = "MM2_NameESP"
+NameESPFolder.Parent = game.CoreGui
+
+-- Track Player Function
+local function TrackPlayer(player)
+    -- Role ESP Highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Name = player.Name .. "_RoleESP"
+    highlight.FillTransparency = 0.5
+    highlight.OutlineTransparency = 0
+    highlight.Parent = ESPFolder
+
+    -- Name ESP Billboard
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = player.Name .. "_NameESP"
+    billboard.Size = UDim2.new(0, 100, 0, 50)
+    billboard.StudsOffset = Vector3.new(0, 3, 0)
+    billboard.AlwaysOnTop = true
+    billboard.Parent = NameESPFolder
+
+    local nameLabel = Instance.new("TextLabel")
+    nameLabel.Size = UDim2.new(1, 0, 1, 0)
+    nameLabel.BackgroundTransparency = 1
+    nameLabel.Text = player.Name
+    nameLabel.TextColor3 = Color3.new(1, 1, 1)
+    nameLabel.TextStrokeTransparency = 0
+    nameLabel.TextScaled = true
+    nameLabel.Font = Enum.Font.SourceSansBold
+    nameLabel.Parent = billboard
+
+    local distanceLabel = Instance.new("TextLabel")
+    distanceLabel.Size = UDim2.new(1, 0, 0.5, 0)
+    distanceLabel.Position = UDim2.new(0, 0, 0.5, 0)
+    distanceLabel.BackgroundTransparency = 1
+    distanceLabel.Text = ""
+    distanceLabel.TextColor3 = Color3.new(1, 1, 0)
+    distanceLabel.TextStrokeTransparency = 0
+    distanceLabel.TextScaled = true
+    distanceLabel.Font = Enum.Font.SourceSans
+    distanceLabel.Parent = billboard
+
+    coroutine.wrap(function()
+        while player and player.Parent do
+            pcall(function()
+                local char = player.Character
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    highlight.Adornee = char
+                    billboard.Adornee = char:FindFirstChild("Head") or char:FindFirstChild("HumanoidRootPart")
+                    
+                    -- Check for weapons to determine role
+                    local knife = char:FindFirstChild("Knife") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Knife"))
+                    local gun = char:FindFirstChild("Gun") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Gun"))
+                    
+                    if knife then
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Murderer (Red)
+                        nameLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                    elseif gun then
+                        highlight.FillColor = Color3.fromRGB(0, 0, 255) -- Sheriff (Blue)
+                        nameLabel.TextColor3 = Color3.fromRGB(0, 0, 255)
+                    else
+                        highlight.FillColor = Color3.fromRGB(0, 255, 0) -- Innocent (Green)
+                        nameLabel.TextColor3 = Color3.fromRGB(0, 255, 0)
+                    end
+                    
+                    -- Calculate distance
+                    local localChar = game.Players.LocalPlayer.Character
+                    if localChar and localChar:FindFirstChild("HumanoidRootPart") then
+                        local distance = (char:FindFirstChild("HumanoidRootPart").Position - localChar:FindFirstChild("HumanoidRootPart").Position).Magnitude
+                        distanceLabel.Text = string.format("%.1f studs", distance)
+                    end
+                    
+                    highlight.Enabled = getgenv().RoleESPEnabled
+                    billboard.Enabled = getgenv().NameESPEnabled
+                    distanceLabel.Visible = getgenv().DistanceESPEnabled
+                else
+                    highlight.Enabled = false
+                    billboard.Enabled = false
+                end
+            end)
+            task.wait(0.1)
+        end
+        highlight:Destroy()
+        billboard:Destroy()
+    end)()
+end
+
+-- Track existing players
+for _, player in ipairs(game.Players:GetPlayers()) do
+    if player ~= game.Players.LocalPlayer then
+        TrackPlayer(player)
+    end
+end
+
+-- Track new players
+game.Players.PlayerAdded:Connect(function(player)
+    if player ~= game.Players.LocalPlayer then
+        TrackPlayer(player)
+    end
+end)
+
+-- Clean up when players leave
+game.Players.PlayerRemoving:Connect(function(player)
+    local oldHighlight = ESPFolder:FindFirstChild(player.Name .. "_RoleESP")
+    if oldHighlight then
+        oldHighlight:Destroy()
+    end
+    local oldBillboard = NameESPFolder:FindFirstChild(player.Name .. "_NameESP")
+    if oldBillboard then
+        oldBillboard:Destroy()
+    end
+end)
+
+-- Aimbot Tab
+local AimbotTab = Window:CreateTab("Aimbot", 4483362458)
+
+-- Aimbot Toggle
+AimbotTab:CreateToggle({
+    Name = "Aimbot",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().AimbotEnabled = value
+    end,
+})
+
+-- Aimbot Settings
+AimbotTab:CreateSlider({
+    Name = "Aimbot Smoothness",
+    Range = {1, 10},
+    Increment = 1,
+    CurrentValue = 5,
+    Callback = function(value)
+        getgenv().AimbotSmoothness = value
+    end,
+})
+
+AimbotTab:CreateToggle({
+    Name = "Target Murderers Only",
+    CurrentValue = true,
+    Callback = function(value)
+        getgenv().TargetMurderersOnly = value
+    end,
+})
+
+-- Aimbot Function
+local camera = game.Workspace.CurrentCamera
+local target = nil
+
+local function getClosestPlayer()
+    local closestPlayer = nil
+    local closestDistance = math.huge
+    
+    for _, player in ipairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            local char = player.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                -- Check if target is murderer (if setting is enabled)
+                if getgenv().TargetMurderersOnly then
+                    local knife = char:FindFirstChild("Knife") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Knife"))
+                    if not knife then
+                        continue
+                    end
+                end
+                
+                local distance = (char:FindFirstChild("HumanoidRootPart").Position - camera.CFrame.Position).Magnitude
+                if distance < closestDistance then
+                    closestDistance = distance
+                    closestPlayer = player
                 end
             end
-        else
-            for Player in pairs(ESP_Objects) do
-                RemoveESP(Player)
+        end
+    end
+    
+    return closestPlayer
+end
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    if getgenv().AimbotEnabled then
+        local closestPlayer = getClosestPlayer()
+        if closestPlayer then
+            local char = closestPlayer.Character
+            if char and char:FindFirstChild("Head") then
+                local targetPos = char:FindFirstChild("Head").Position
+                local currentCFrame = camera.CFrame
+                local lookAt = CFrame.lookAt(currentCFrame.Position, targetPos)
+                
+                local smoothness = getgenv().AimbotSmoothness or 5
+                camera.CFrame = currentCFrame:Lerp(lookAt, 0.1 / smoothness)
             end
         end
-    end,
-})
-
-ESPTab:CreateColorPicker({
-    Name = "ESP Color",
-    Color = Color3.fromRGB(255, 105, 180),
-    Callback = function(Value)
-        getgenv().ESPColor = Value
     end
-})
+end)
 
--- Lock-On Tab
-local LockOnTab = Window:CreateTab("Lock-On", 4483362458)
+-- Farm Tab
+local FarmTab = Window:CreateTab("Farm", 4483362458)
 
-LockOnTab:CreateToggle({
-    Name = "Enable Lock-On",
+local autofarm = false
+
+FarmTab:CreateToggle({
+    Name = "Auto Farm",
     CurrentValue = false,
-    Callback = function(Value)
-        getgenv().LockOnEnabled = Value
-        if not Value then
-            Unlock()
+    Callback = function(value)
+        autofarm = value
+        if value then
+            coroutine.wrap(function()
+                while autofarm do
+                    pcall(function()
+                        local char = game.Players.LocalPlayer.Character
+                        if char and char:FindFirstChild("HumanoidRootPart") then
+                            -- Teleport to farm location (adjust coordinates as needed)
+                            char:FindFirstChild("HumanoidRootPart").CFrame = CFrame.new(99.9, 140.4, 60.7)
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)()
         end
     end,
 })
 
-LockOnTab:CreateSlider({
-    Name = "Lock Smoothness",
-    Range = {0.05, 0.3},
-    Increment = 0.01,
-    CurrentValue = 0.1,
-    Callback = function(Value)
-        getgenv().LockOnSmoothness = Value
+-- Auto Collect Coins
+FarmTab:CreateToggle({
+    Name = "Auto Collect Coins",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().AutoCollectCoins = value
+        if value then
+            coroutine.wrap(function()
+                while getgenv().AutoCollectCoins do
+                    pcall(function()
+                        for _, coin in ipairs(game.Workspace:GetDescendants()) do
+                            if coin:IsA("Part") and coin.Name:lower():find("coin") then
+                                local char = game.Players.LocalPlayer.Character
+                                if char and char:FindFirstChild("HumanoidRootPart") then
+                                    char:FindFirstChild("HumanoidRootPart").CFrame = coin.CFrame
+                                    task.wait(0.5)
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(1)
+                end
+            end)()
+        end
     end,
 })
 
-LockOnTab:CreateSlider({
-    Name = "FOV Range",
-    Range = {10, 100},
-    Increment = 5,
-    CurrentValue = 30,
-    Callback = function(Value)
-        getgenv().LockOnFOV = Value
+-- Misc Tab
+local MiscTab = Window:CreateTab("Misc", 4483362458)
+
+-- No Clip
+MiscTab:CreateToggle({
+    Name = "No Clip",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().NoClipEnabled = value
+        if value then
+            coroutine.wrap(function()
+                while getgenv().NoClipEnabled do
+                    pcall(function()
+                        local char = game.Players.LocalPlayer.Character
+                        if char then
+                            for _, part in ipairs(char:GetDescendants()) do
+                                if part:IsA("BasePart") then
+                                    part.CanCollide = false
+                                end
+                            end
+                        end
+                    end)
+                    task.wait(0.1)
+                end
+            end)()
+        end
     end,
 })
 
--- Settings Tab
-local SettingsTab = Window:CreateTab("Settings", 4483362458)
+-- Infinite Jump
+MiscTab:CreateToggle({
+    Name = "Infinite Jump",
+    CurrentValue = false,
+    Callback = function(value)
+        getgenv().InfiniteJump = value
+    end,
+})
 
-SettingsTab:CreateButton({
-    Name = "Close UI",
-    Callback = function()
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if getgenv().InfiniteJump then
+        game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState(Enum.HumanoidStateType.Jumping)
+    end
+end)
+
+-- Speed Boost
+MiscTab:CreateSlider({
+    Name = "Speed Boost",
+    Range = {16, 100},
+    Increment = 4,
+    CurrentValue = 16,
+    Callback = function(value)
         pcall(function()
-            Rayfield:Destroy()
+            local char = game.Players.LocalPlayer.Character
+            if char and char:FindFirstChildOfClass("Humanoid") then
+                char:FindFirstChildOfClass("Humanoid").WalkSpeed = value
+            end
         end)
     end,
 })
-
-SettingsTab:CreateLabel("Press Q to lock onto nearest player")
-SettingsTab:CreateLabel("Press K to toggle UI")
 
 -- GitHub Tab
 local GitHubTab = Window:CreateTab("GitHub", 4483362458)
@@ -267,7 +362,7 @@ local GitHubTab = Window:CreateTab("GitHub", 4483362458)
 GitHubTab:CreateButton({
     Name = "Copy GitHub to Clipboard",
     Callback = function()
-        setclipboard("https://github.com/warechloe6-rgb/murder-mystery")
+        setclipboard("https://github.com/DarkNetworks/Orca")
         Rayfield:Notify({
             Title = "GitHub",
             Content = "Copied GitHub link to clipboard!",
@@ -276,557 +371,26 @@ GitHubTab:CreateButton({
     end,
 })
 
--- Utility Functions
-local function GetDistance(Position)
-    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return math.huge end
-    return (LocalPlayer.Character.HumanoidRootPart.Position - Position).Magnitude
-end
+GitHubTab:CreateButton({
+    Name = "Get Latest Script",
+    Callback = function()
+        setclipboard("loadstring(game:HttpGetAsync('https://raw.githubusercontent.com/DarkNetworks/Orca/master/public/latest.lua'))()")
+        Rayfield:Notify({
+            Title = "Script Link",
+            Content = "Copied latest script link to clipboard!",
+            Duration = 5
+        })
+    end,
+})
 
-local function GetClosestPlayer()
-    local ClosestPlayer = nil
-    local ClosestDistance = getgenv().LockOnFOV
-    
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.Humanoid.Health > 0 then
-            local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Player.Character.HumanoidRootPart.Position)
-            if OnScreen then
-                local Distance = (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-                if Distance < ClosestDistance then
-                    ClosestDistance = Distance
-                    ClosestPlayer = Player
-                end
-            end
-        end
-    end
-    
-    return ClosestPlayer
-end
+-- Credits
+GitHubTab:CreateLabel("Script by DarkNetworks")
+GitHubTab:CreateLabel("Version: 1.0")
+GitHubTab:CreateLabel("Features: ESP, Aimbot, Farm, Misc")
 
--- ESP Functions
-local function CreateESP(Player)
-    if ESP_Objects[Player] then return end
-    
-    local Character = Player.Character
-    if not Character then return end
-    
-    local ESP = {}
-    
-    -- Highlight
-    local Highlight = Instance.new("Highlight")
-    Highlight.Name = Player.Name .. "_ESP"
-    Highlight.FillTransparency = 0.5
-    Highlight.OutlineTransparency = 0
-    Highlight.FillColor = getgenv().ESPColor
-    Highlight.Parent = ESPFolder
-    
-    -- Billboard for info
-    local Billboard = Instance.new("BillboardGui")
-    Billboard.Name = "ESP_Billboard"
-    Billboard.Size = UDim2.new(0, 200, 0, 100)
-    Billboard.StudsOffset = Vector3.new(0, 3, 0)
-    Billboard.AlwaysOnTop = true
-    Billboard.Parent = Character:FindFirstChild("Head") or Character:FindFirstChild("HumanoidRootPart")
-    
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, 0, 1, 0)
-    Frame.BackgroundTransparency = 1
-    Frame.Parent = Billboard
-    
-    local NameLabel = Instance.new("TextLabel")
-    NameLabel.Name = "NameLabel"
-    NameLabel.Size = UDim2.new(1, 0, 0, 20)
-    NameLabel.Position = UDim2.new(0, 0, 0, 0)
-    NameLabel.BackgroundTransparency = 1
-    NameLabel.Text = Player.Name
-    NameLabel.TextColor3 = getgenv().ESPColor
-    NameLabel.TextStrokeTransparency = 0.5
-    NameLabel.TextScaled = true
-    NameLabel.Font = Enum.Font.SourceSansBold
-    NameLabel.Parent = Frame
-    
-    local DistanceLabel = Instance.new("TextLabel")
-    DistanceLabel.Name = "DistanceLabel"
-    DistanceLabel.Size = UDim2.new(1, 0, 0, 15)
-    DistanceLabel.Position = UDim2.new(0, 0, 0, 20)
-    DistanceLabel.BackgroundTransparency = 1
-    DistanceLabel.Text = ""
-    DistanceLabel.TextColor3 = getgenv().ESPColor
-    DistanceLabel.TextStrokeTransparency = 0.5
-    DistanceLabel.TextScaled = true
-    DistanceLabel.Font = Enum.Font.SourceSans
-    DistanceLabel.Parent = Frame
-    
-    local HealthLabel = Instance.new("TextLabel")
-    HealthLabel.Name = "HealthLabel"
-    HealthLabel.Size = UDim2.new(1, 0, 0, 15)
-    HealthLabel.Position = UDim2.new(0, 0, 0, 35)
-    HealthLabel.BackgroundTransparency = 1
-    HealthLabel.Text = ""
-    HealthLabel.TextColor3 = getgenv().ESPColor
-    HealthLabel.TextStrokeTransparency = 0.5
-    HealthLabel.TextScaled = true
-    HealthLabel.Font = Enum.Font.SourceSans
-    HealthLabel.Parent = Frame
-    
-    ESP.Highlight = Highlight
-    ESP.Billboard = Billboard
-    ESP.NameLabel = NameLabel
-    ESP.DistanceLabel = DistanceLabel
-    ESP.HealthLabel = HealthLabel
-    
-    ESP_Objects[Player] = ESP
-end
-
-local function UpdateESP(Player)
-    local ESP = ESP_Objects[Player]
-    if not ESP then return end
-    
-    local Character = Player.Character
-    if not Character or not Character:FindFirstChild("HumanoidRootPart") then
-        RemoveESP(Player)
-        return
-    end
-    
-    -- Update highlight
-    if ESP.Highlight then
-        ESP.Highlight.Adornee = Character
-        ESP.Highlight.FillColor = getgenv().ESPColor
-        ESP.Highlight.Enabled = getgenv().ESPEnabled
-    end
-    
-    -- Update name
-    if ESP.NameLabel then
-        ESP.NameLabel.Text = Player.Name
-        ESP.NameLabel.TextColor3 = getgenv().ESPColor
-        ESP.NameLabel.Visible = getgenv().ESPEnabled
-    end
-    
-    -- Update distance
-    if ESP.DistanceLabel then
-        local Distance = GetDistance(Character.HumanoidRootPart.Position)
-        ESP.DistanceLabel.Text = string.format("Distance: %.0f", Distance)
-        ESP.DistanceLabel.TextColor3 = getgenv().ESPColor
-        ESP.DistanceLabel.Visible = getgenv().ESPEnabled
-    end
-    
-    -- Update health
-    if ESP.HealthLabel and Character:FindFirstChild("Humanoid") then
-        local Health = Character.Humanoid.Health
-        local MaxHealth = Character.Humanoid.MaxHealth
-        ESP.HealthLabel.Text = string.format("Health: %.0f/%.0f", Health, MaxHealth)
-        ESP.HealthLabel.TextColor3 = getgenv().ESPColor
-        ESP.HealthLabel.Visible = getgenv().ESPEnabled
-    end
-    
-    -- Update billboard
-    if ESP.Billboard then
-        ESP.Billboard.Enabled = getgenv().ESPEnabled
-    end
-end
-
-local function RemoveESP(Player)
-    local ESP = ESP_Objects[Player]
-    if ESP then
-        if ESP.Highlight then ESP.Highlight:Destroy() end
-        if ESP.Billboard then ESP.Billboard:Destroy() end
-        ESP_Objects[Player] = nil
-    end
-end
-
--- Lock-On Functions
-local function LockOn(Player)
-    if not Player or not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then return end
-    LockedTarget = Player
-    IsLocked = true
-end
-
-local function Unlock()
-    LockedTarget = nil
-    IsLocked = false
-end
-
-local function UpdateLockOn()
-    if not getgenv().LockOnEnabled then
-        Unlock()
-        return
-    end
-    
-    if LockedTarget and LockedTarget.Character and LockedTarget.Character:FindFirstChild("HumanoidRootPart") then
-        if LockedTarget.Character:FindFirstChild("Humanoid").Health <= 0 then
-            Unlock()
-            return
-        end
-        
-        local TargetPosition = LockedTarget.Character.HumanoidRootPart.Position
-        local CurrentCFrame = Camera.CFrame
-        local LookAt = CFrame.new(CurrentCFrame.Position, TargetPosition)
-        Camera.CFrame = CurrentCFrame:Lerp(LookAt, getgenv().LockOnSmoothness)
-    else
-        Unlock()
-    end
-end
-
--- Input Handling
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-    if GameProcessed then return end
-    
-    if Input.KeyCode == Enum.KeyCode.Q and getgenv().LockOnEnabled then
-        if IsLocked then
-            Unlock()
-        else
-            local Target = GetClosestPlayer()
-            if Target then
-                LockOn(Target)
-            end
-        end
-    end
-    
-    -- K key to toggle GUI
-    if Input.KeyCode == Enum.KeyCode.K then
-        if Window then
-            Window:Toggle()
-        end
-    end
-end)
-
--- Player Management
-Players.PlayerAdded:Connect(function(Player)
-    if Player ~= LocalPlayer then
-        Player.CharacterAdded:Connect(function(Character)
-            if getgenv().ESPEnabled then
-                CreateESP(Player)
-            end
-        end)
-        
-        if getgenv().ESPEnabled then
-            CreateESP(Player)
-        end
-    end
-end)
-
-Players.PlayerRemoving:Connect(function(Player)
-    RemoveESP(Player)
-    if LockedTarget == Player then
-        Unlock()
-    end
-end)
-
--- Initialize ESP for existing players
-for _, Player in pairs(Players:GetPlayers()) do
-    if Player ~= LocalPlayer then
-        Player.CharacterAdded:Connect(function(Character)
-            if getgenv().ESPEnabled then
-                CreateESP(Player)
-            end
-        end)
-        
-        if getgenv().ESPEnabled then
-            CreateESP(Player)
-        end
-    end
-end
-
--- Main Update Loop
-RunService.Heartbeat:Connect(function()
-    -- Update ESP for all players
-    for Player, ESP in pairs(ESP_Objects) do
-        UpdateESP(Player)
-    end
-    
-    -- Update lock-on
-    UpdateLockOn()
-end)
-
-print("🌸 jassy's mm2 Loaded!")
-print("Press Q to lock onto nearest player")
-print("Press K to toggle UI")
-
-return
-
--- Services
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local UserInputService = game:GetService("UserInputService")
-local Workspace = game:GetService("Workspace")
-local Camera = Workspace.CurrentCamera
-local LocalPlayer = Players.LocalPlayer
-
--- Variables
-local LockedTarget = nil
-local ESP_Objects = {}
-local IsLocked = false
-
--- ESP Folder
-local ESPFolder = Instance.new("Folder")
-ESPFolder.Name = "MM2_ESP_Highlights"
-ESPFolder.Parent = game.CoreGui
-
--- Utility Functions
-local function GetDistance(Position)
-    if not LocalPlayer.Character or not LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then return math.huge end
-    return (LocalPlayer.Character.HumanoidRootPart.Position - Position).Magnitude
-end
-
-local function GetClosestPlayer()
-    local ClosestPlayer = nil
-    local ClosestDistance = getgenv().LockOnFOV
-    
-    for _, Player in pairs(Players:GetPlayers()) do
-        if Player ~= LocalPlayer and Player.Character and Player.Character:FindFirstChild("Humanoid") and Player.Character:FindFirstChild("HumanoidRootPart") and Player.Character.Humanoid.Health > 0 then
-            local ScreenPosition, OnScreen = Camera:WorldToViewportPoint(Player.Character.HumanoidRootPart.Position)
-            if OnScreen then
-                local Distance = (Vector2.new(ScreenPosition.X, ScreenPosition.Y) - Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)).Magnitude
-                if Distance < ClosestDistance then
-                    ClosestDistance = Distance
-                    ClosestPlayer = Player
-                end
-            end
-        end
-    end
-    
-    return ClosestPlayer
-end
-
--- ESP Functions
-local function CreateESP(Player)
-    if ESP_Objects[Player] then return end
-    
-    local Character = Player.Character
-    if not Character then return end
-    
-    local ESP = {}
-    
-    -- Highlight
-    local Highlight = Instance.new("Highlight")
-    Highlight.Name = Player.Name .. "_ESP"
-    Highlight.FillTransparency = 0.5
-    Highlight.OutlineTransparency = 0
-    Highlight.FillColor = getgenv().ESPColor
-    Highlight.Parent = ESPFolder
-    
-    -- Billboard for info
-    local Billboard = Instance.new("BillboardGui")
-    Billboard.Name = "ESP_Billboard"
-    Billboard.Size = UDim2.new(0, 200, 0, 100)
-    Billboard.StudsOffset = Vector3.new(0, 3, 0)
-    Billboard.AlwaysOnTop = true
-    Billboard.Parent = Character:FindFirstChild("Head") or Character:FindFirstChild("HumanoidRootPart")
-    
-    local Frame = Instance.new("Frame")
-    Frame.Size = UDim2.new(1, 0, 1, 0)
-    Frame.BackgroundTransparency = 1
-    Frame.Parent = Billboard
-    
-    local NameLabel = Instance.new("TextLabel")
-    NameLabel.Name = "NameLabel"
-    NameLabel.Size = UDim2.new(1, 0, 0, 20)
-    NameLabel.Position = UDim2.new(0, 0, 0, 0)
-    NameLabel.BackgroundTransparency = 1
-    NameLabel.Text = Player.Name
-    NameLabel.TextColor3 = getgenv().ESPColor
-    NameLabel.TextStrokeTransparency = 0.5
-    NameLabel.TextScaled = true
-    NameLabel.Font = Enum.Font.SourceSansBold
-    NameLabel.Parent = Frame
-    
-    local DistanceLabel = Instance.new("TextLabel")
-    DistanceLabel.Name = "DistanceLabel"
-    DistanceLabel.Size = UDim2.new(1, 0, 0, 15)
-    DistanceLabel.Position = UDim2.new(0, 0, 0, 20)
-    DistanceLabel.BackgroundTransparency = 1
-    DistanceLabel.Text = ""
-    DistanceLabel.TextColor3 = getgenv().ESPColor
-    DistanceLabel.TextStrokeTransparency = 0.5
-    DistanceLabel.TextScaled = true
-    DistanceLabel.Font = Enum.Font.SourceSans
-    DistanceLabel.Parent = Frame
-    
-    local HealthLabel = Instance.new("TextLabel")
-    HealthLabel.Name = "HealthLabel"
-    HealthLabel.Size = UDim2.new(1, 0, 0, 15)
-    HealthLabel.Position = UDim2.new(0, 0, 0, 35)
-    HealthLabel.BackgroundTransparency = 1
-    HealthLabel.Text = ""
-    HealthLabel.TextColor3 = getgenv().ESPColor
-    HealthLabel.TextStrokeTransparency = 0.5
-    HealthLabel.TextScaled = true
-    HealthLabel.Font = Enum.Font.SourceSans
-    HealthLabel.Parent = Frame
-    
-    ESP.Highlight = Highlight
-    ESP.Billboard = Billboard
-    ESP.NameLabel = NameLabel
-    ESP.DistanceLabel = DistanceLabel
-    ESP.HealthLabel = HealthLabel
-    
-    ESP_Objects[Player] = ESP
-end
-
-local function UpdateESP(Player)
-    local ESP = ESP_Objects[Player]
-    if not ESP then return end
-    
-    local Character = Player.Character
-    if not Character or not Character:FindFirstChild("HumanoidRootPart") then
-        RemoveESP(Player)
-        return
-    end
-    
-    -- Update highlight
-    if ESP.Highlight then
-        ESP.Highlight.Adornee = Character
-        ESP.Highlight.FillColor = getgenv().ESPColor
-        ESP.Highlight.Enabled = getgenv().ESPEnabled
-    end
-    
-    -- Update name
-    if ESP.NameLabel then
-        ESP.NameLabel.Text = Player.Name
-        ESP.NameLabel.TextColor3 = getgenv().ESPColor
-        ESP.NameLabel.Visible = getgenv().ESPEnabled
-    end
-    
-    -- Update distance
-    if ESP.DistanceLabel then
-        local Distance = GetDistance(Character.HumanoidRootPart.Position)
-        ESP.DistanceLabel.Text = string.format("Distance: %.0f", Distance)
-        ESP.DistanceLabel.TextColor3 = getgenv().ESPColor
-        ESP.DistanceLabel.Visible = getgenv().ESPEnabled
-    end
-    
-    -- Update health
-    if ESP.HealthLabel and Character:FindFirstChild("Humanoid") then
-        local Health = Character.Humanoid.Health
-        local MaxHealth = Character.Humanoid.MaxHealth
-        ESP.HealthLabel.Text = string.format("Health: %.0f/%.0f", Health, MaxHealth)
-        ESP.HealthLabel.TextColor3 = getgenv().ESPColor
-        ESP.HealthLabel.Visible = getgenv().ESPEnabled
-    end
-    
-    -- Update billboard
-    if ESP.Billboard then
-        ESP.Billboard.Enabled = getgenv().ESPEnabled
-    end
-end
-
-local function RemoveESP(Player)
-    local ESP = ESP_Objects[Player]
-    if ESP then
-        if ESP.Highlight then ESP.Highlight:Destroy() end
-        if ESP.Billboard then ESP.Billboard:Destroy() end
-        ESP_Objects[Player] = nil
-    end
-end
-
--- Lock-On Functions
-local function LockOn(Player)
-    if not Player or not Player.Character or not Player.Character:FindFirstChild("HumanoidRootPart") then return end
-    LockedTarget = Player
-    IsLocked = true
-end
-
-local function Unlock()
-    LockedTarget = nil
-    IsLocked = false
-end
-
-local function UpdateLockOn()
-    if not getgenv().LockOnEnabled then
-        Unlock()
-        return
-    end
-    
-    if LockedTarget and LockedTarget.Character and LockedTarget.Character:FindFirstChild("HumanoidRootPart") then
-        if LockedTarget.Character:FindFirstChild("Humanoid").Health <= 0 then
-            Unlock()
-            return
-        end
-        
-        local TargetPosition = LockedTarget.Character.HumanoidRootPart.Position
-        local CurrentCFrame = Camera.CFrame
-        local LookAt = CFrame.new(CurrentCFrame.Position, TargetPosition)
-        Camera.CFrame = CurrentCFrame:Lerp(LookAt, getgenv().LockOnSmoothness)
-    else
-        Unlock()
-    end
-end
-
--- Input Handling
-UserInputService.InputBegan:Connect(function(Input, GameProcessed)
-    if GameProcessed then return end
-    
-    if Input.KeyCode == Enum.KeyCode.Q and getgenv().LockOnEnabled then
-        if IsLocked then
-            Unlock()
-        else
-            local Target = GetClosestPlayer()
-            if Target then
-                LockOn(Target)
-            end
-        end
-    end
-    
-    -- K key to toggle GUI
-    if Input.KeyCode == Enum.KeyCode.K then
-        if Window then
-            Window:Toggle()
-        end
-    end
-end)
-
--- Player Management
-Players.PlayerAdded:Connect(function(Player)
-    if Player ~= LocalPlayer then
-        Player.CharacterAdded:Connect(function(Character)
-            if getgenv().ESPEnabled then
-                CreateESP(Player)
-            end
-        end)
-        
-        if getgenv().ESPEnabled then
-            CreateESP(Player)
-        end
-    end
-end)
-
-Players.PlayerRemoving:Connect(function(Player)
-    RemoveESP(Player)
-    if LockedTarget == Player then
-        Unlock()
-    end
-end)
-
--- Initialize ESP for existing players
-for _, Player in pairs(Players:GetPlayers()) do
-    if Player ~= LocalPlayer then
-        Player.CharacterAdded:Connect(function(Character)
-            if getgenv().ESPEnabled then
-                CreateESP(Player)
-            end
-        end)
-        
-        if getgenv().ESPEnabled then
-            CreateESP(Player)
-        end
-    end
-end
-
--- Main Update Loop
-RunService.Heartbeat:Connect(function()
-    -- Update ESP for all players
-    for Player, ESP in pairs(ESP_Objects) do
-        UpdateESP(Player)
-    end
-    
-    -- Update lock-on
-    UpdateLockOn()
-end)
-
--- Cleanup on character remove
-LocalPlayer.CharacterAdded:Connect(function(Character)
-    -- Reinitialize if needed
-end)
-
-print("Murder Mystery Script Loaded with Rayfield UI!")
-print("Press Q to lock onto nearest player")
-print("Use the Rayfield UI to toggle features")
+-- Notification on load
+Rayfield:Notify({
+    Title = "MM2 Script Loaded",
+    Content = "DarkNetworks MM2 Script with ESP and Aimbot",
+    Duration = 5
+})
