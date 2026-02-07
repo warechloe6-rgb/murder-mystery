@@ -158,7 +158,7 @@ local function TrackPlayer(player)
                     
                     -- Check for weapons to determine role
                     local knife = char:FindFirstChild("Knife") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Knife"))
-                    local gun = char:FindFirstChild("Gun") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Gun"))
+                    local gun = char:FindFirstChild("Sheriff Gun") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Sheriff Gun"))
                     
                     if knife then
                         highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Murderer (Red)
@@ -285,21 +285,21 @@ end
 
 -- Track existing guns in workspace and all subfolders
 for _, obj in ipairs(workspace:GetDescendants()) do
-    if obj:IsA("Tool") and (obj.Name == "Gun" or obj:FindFirstChild("Gun")) and obj:FindFirstChild("Handle") then
+    if obj:IsA("Tool") and (obj.Name == "Sheriff Gun" or obj:FindFirstChild("Gun")) and obj:FindFirstChild("Handle") then
         TrackGun(obj)
     end
 end
 
 -- Watch for new guns being added anywhere
 workspace.DescendantAdded:Connect(function(obj)
-    if obj:IsA("Tool") and (obj.Name == "Gun" or obj:FindFirstChild("Gun")) and obj:FindFirstChild("Handle") then
+    if obj:IsA("Tool") and (obj.Name == "Sheriff Gun" or obj:FindFirstChild("Gun")) and obj:FindFirstChild("Handle") then
         TrackGun(obj)
     end
 end)
 
 -- Clean up gun ESP when guns are removed
 workspace.DescendantRemoving:Connect(function(obj)
-    if obj:IsA("Tool") and obj.Name == "Gun" then
+    if obj:IsA("Tool") and obj.Name == "Sheriff Gun" then
         local oldBillboard = GunESPFolder:FindFirstChild(obj.Name .. "_GunESP")
         if oldBillboard then
             oldBillboard:Destroy()
@@ -436,11 +436,11 @@ game.Players.PlayerAdded:Connect(updateDropdown)
 game.Players.PlayerRemoving:Connect(updateDropdown)
 
 TeleportTab:CreateButton({
-    Name = "🔫 Teleport to Sheriff",
+    Name = "",
     Callback = function()
         for _, p in pairs(game.Players:GetPlayers()) do
-            if p.Character and (p.Character:FindFirstChild("Gun") or p.Backpack:FindFirstChild("Gun")) then
-                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
+            if p.Character and (p.Character:FindFirstChild("Sheriff Gun") or p.Backpack:FindFirstChild("Sheriff Gun")) then
+                game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = p.Character.HumanoidRootPart.CFrame * CFrame.new(0, 3, 0)
                 return
             end
         end
@@ -460,6 +460,15 @@ TeleportTab:CreateButton({
 })
 
 -- Credits/Discord Tab 💬
+local CreditsDiscordTab = Window:CreateTab("💬 Credits/Discord", 4483362458)
+
+-- Jassy Section ✨
+CreditsDiscordTab:CreateLabel("=== ❤ JASSY ❤ ===")
+
+-- Misc Tab 🛠️
+local MiscTab = Window:CreateTab("🛠️ Misc", 4483362458)
+
+-- Movement Section
 MiscTab:CreateLabel("=== MOVEMENT ===")
 
 -- Anti-Cheat Bypass Toggle
@@ -916,7 +925,7 @@ MiscTab:CreateButton({
         local gunPosition = nil
         
         for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("Tool") and (obj.Name == "Gun" or obj:FindFirstChild("Gun")) then
+            if obj:IsA("Tool") and (obj.Name == "Sheriff Gun" or obj:FindFirstChild("Gun") or obj:FindFirstChildWhichIsA("Gun")) then
                 local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
                 if handle then
                     gunObject = obj
@@ -933,7 +942,7 @@ MiscTab:CreateButton({
                 local char = player.Character
                 if char and char:FindFirstChildOfClass("Humanoid") then
                     local humanoid = char:FindFirstChildOfClass("Humanoid")
-                    local hadGun = player.Backpack:FindFirstChild("Gun") ~= nil or char:FindFirstChild("Gun") ~= nil
+                    local hadGun = player.Backpack:FindFirstChild("Sheriff Gun") ~= nil or char:FindFirstChild("Sheriff Gun") ~= nil
                     local isDead = humanoid.Health <= 0
                     
                     if hadGun and isDead then
