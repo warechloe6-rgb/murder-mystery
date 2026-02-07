@@ -158,7 +158,7 @@ local function TrackPlayer(player)
                     
                     -- Check for weapons to determine role
                     local knife = char:FindFirstChild("Knife") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Knife"))
-                    local gun = char:FindFirstChild("Sheriff Gun") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Sheriff Gun"))
+                    local gun = char:FindFirstChild("Gun") or (player:FindFirstChild("Backpack") and player.Backpack:FindFirstChild("Gun"))
                     
                     if knife then
                         highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Murderer (Red)
@@ -917,7 +917,7 @@ MiscTab:CreateButton({
         local gunPosition = nil
         
         for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("Tool") and (obj.Name == "Sheriff Gun" or obj:FindFirstChild("Gun") or obj:FindFirstChildWhichIsA("Gun")) then
+            if obj:IsA("Tool") and (obj.Name == "Gun" or obj:FindFirstChild("Gun") or obj:FindFirstChildWhichIsA("Gun")) then
                 local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
                 if handle then
                     gunObject = obj
@@ -934,7 +934,7 @@ MiscTab:CreateButton({
                 local char = player.Character
                 if char and char:FindFirstChildOfClass("Humanoid") then
                     local humanoid = char:FindFirstChildOfClass("Humanoid")
-                    local hadGun = player.Backpack:FindFirstChild("Sheriff Gun") ~= nil or char:FindFirstChild("Sheriff Gun") ~= nil
+                    local hadGun = player.Backpack:FindFirstChild("Gun") ~= nil or char:FindFirstChild("Gun") ~= nil
                     local isDead = humanoid.Health <= 0
                     
                     if hadGun and isDead then
