@@ -382,7 +382,7 @@ local function getClosestPlayer()
                 local head = char:FindFirstChild("Head")
                 if head then
                     local distance = (head.Position - camera.CFrame.Position).Magnitude
-                    if distance < closestDistance and distance < 200 then -- Max aimbot range
+                    if distance < closestDistance and distance < 600 then -- Max aimbot range
                         closestDistance = distance
                         closestPlayer = player
                     end
