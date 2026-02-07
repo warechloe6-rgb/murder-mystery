@@ -917,7 +917,7 @@ MiscTab:CreateButton({
         local gunPosition = nil
         
         for _, obj in ipairs(workspace:GetDescendants()) do
-            if obj:IsA("Tool") and (obj.Name == "Gun" or obj:FindFirstChild("Gun") or obj:FindFirstChildWhichIsA("Gun")) then
+            if obj:IsA("Tool") and (obj.Name == "Gun" or obj:FindFirstChild("Gun")) and obj:FindFirstChild("Handle") then
                 local handle = obj:FindFirstChild("Handle") or obj:FindFirstChildWhichIsA("BasePart")
                 if handle then
                     gunObject = obj
