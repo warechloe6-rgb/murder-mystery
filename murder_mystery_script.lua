@@ -747,27 +747,193 @@ MiscTab:CreateToggle({
 -- Visual Section
 MiscTab:CreateLabel("=== VISUAL ===")
 
--- Full Bright
+-- Shaders
 MiscTab:CreateToggle({
-    Name = "[Full Bright]",
+    Name = "[Shaders]",
     CurrentValue = false,
     Callback = function(value)
-        getgenv().FullBrightEnabled = value
+        getgenv().ShadersEnabled = value
         if value then
-            getgenv().FullBrightLighting = game:GetService("Lighting")
-            getgenv().OriginalBrightness = getgenv().FullBrightLighting.Brightness
-            getgenv().OriginalTimeOfDay = getgenv().FullBrightLighting.TimeOfDay
-            getgenv().OriginalFogEnd = getgenv().FullBrightLighting.FogEnd
+            -- Store original lighting settings
+            getgenv().ShaderLighting = game:GetService("Lighting")
+            getgenv().OriginalBrightness = getgenv().ShaderLighting.Brightness
+            getgenv().OriginalTimeOfDay = getgenv().ShaderLighting.TimeOfDay
+            getgenv().OriginalFogEnd = getgenv().ShaderLighting.FogEnd
+            getgenv().OriginalColorShift_Top = getgenv().ShaderLighting.ColorShift_Top
+            getgenv().OriginalColorShift_Bottom = getgenv().ShaderLighting.ColorShift_Bottom
+            getgenv().OriginalOutdoorAmbient = getgenv().ShaderLighting.OutdoorAmbient
             
-            getgenv().FullBrightLighting.Brightness = 2
-            getgenv().FullBrightLighting.TimeOfDay = "14:00:00"
-            getgenv().FullBrightLighting.FogEnd = 100000
-        else
-            if getgenv().FullBrightLighting then
-                getgenv().FullBrightLighting.Brightness = getgenv().OriginalBrightness or 1
-                getgenv().FullBrightLighting.TimeOfDay = getgenv().OriginalTimeOfDay or "14:00:00"
-                getgenv().FullBrightLighting.FogEnd = getgenv().OriginalFogEnd or 1000
+            -- Apply RTX-style shader effects
+            getgenv().ShaderLighting.Brightness = 0.6 -- Further reduced to combat overexposure
+            getgenv().ShaderLighting.TimeOfDay = "14:30:00"
+            getgenv().ShaderLighting.FogEnd = 500
+            getgenv().ShaderLighting.FogStart = 50
+            getgenv().ShaderLighting.FogColor = Color3.fromRGB(135, 150, 180)
+            getgenv().ShaderLighting.ColorShift_Top = Color3.fromRGB(50, 50, 60) -- Less intense color shift
+            getgenv().ShaderLighting.ColorShift_Bottom = Color3.fromRGB(30, 30, 40) -- Less intense color shift
+            getgenv().ShaderLighting.OutdoorAmbient = Color3.fromRGB(80, 80, 95) -- More balanced ambient
+            getgenv().ShaderLighting.GlobalShadows = true
+            getgenv().ShaderLighting.ShadowSoftness = 0.3
+            getgenv().ShaderLighting.EnvironmentDiffuseScale = 0.8
+            getgenv().ShaderLighting.EnvironmentSpecularScale = 2.0
+            getgenv().ShaderLighting.GeographicLatitude = 30
+            
+            -- Create atmospheric effects
+            local atmosphere = Instance.new("Atmosphere")
+            atmosphere.Parent = getgenv().ShaderLighting
+            atmosphere.Density = 0.3
+            atmosphere.Offset = 0.25
+            atmosphere.Color = Color3.fromRGB(180, 190, 200) -- Less saturated atmosphere
+            atmosphere.Decay = Color3.fromRGB(240, 240, 240) -- Less intense decay
+            atmosphere.Glare = 0.05 -- Reduced glare
+            atmosphere.Haze = 0.4 -- Slightly reduced haze
+            getgenv().ShaderAtmosphere = atmosphere
+            
+            -- Create post-processing effects
+            local bloom = Instance.new("BloomEffect")
+            bloom.Intensity = 0.05 -- Further reduced bloom intensity
+            bloom.Size = 20 -- Smaller bloom size
+            bloom.Threshold = 0.9 -- Higher threshold to only bloom brightest areas
+            bloom.Parent = getgenv().ShaderLighting
+            getgenv().ShaderBloom = bloom
+            
+            local colorCorrection = Instance.new("ColorCorrectionEffect")
+            colorCorrection.Brightness = -0.1 -- Negative brightness to combat overexposure
+            colorCorrection.Contrast = 0.4 -- Slightly increased contrast for definition
+            colorCorrection.Saturation = 1.1 -- Much less saturated but still vibrant
+            colorCorrection.TintColor = Color3.fromRGB(240, 240, 245) -- Warmer, less intense tint
+            colorCorrection.Parent = getgenv().ShaderLighting
+            getgenv().ShaderColorCorrection = colorCorrection
+            
+            local sunRays = Instance.new("SunRaysEffect")
+            sunRays.Intensity = 0.3 -- Increased from 0.2 for more dramatic rays
+            sunRays.Spread = 0.4 -- Increased from 0.3
+            sunRays.Parent = getgenv().ShaderLighting
+            getgenv().ShaderSunRays = sunRays
+            
+            local depthOfField = Instance.new("DepthOfFieldEffect")
+            depthOfField.FarIntensity = 0 -- Remove far blur completely
+            depthOfField.FocusDistance = 100000 -- Set focus to infinity
+            depthOfField.InFocusRadius = 100000 -- Everything in focus
+            depthOfField.NearIntensity = 0 -- Remove near blur completely
+            depthOfField.Parent = getgenv().ShaderLighting
+            getgenv().ShaderDepthOfField = depthOfField
+            
+            -- Enhance materials for reflective surfaces
+            for _, obj in ipairs(workspace:GetDescendants()) do
+                if obj:IsA("BasePart") then
+                    -- Add highly reflective properties to ground/road-like surfaces
+                    if obj.Name:lower():find("road") or obj.Name:lower():find("street") or obj.Name:lower():find("ground") or obj.Name:lower():find("floor") or obj.BrickColor == BrickColor.new("Dark stone grey") then
+                        obj.Material = Enum.Material.SmoothPlastic
+                        obj.Reflectance = 0.6 -- Increased from 0.4 for maximum gloss
+                        obj.TopSurface = Enum.SurfaceType.Smooth
+                        obj.BottomSurface = Enum.SurfaceType.Smooth
+                    end
+                    
+                    -- Add metallic properties to vehicles
+                    if obj.Name:lower():find("car") or obj.Parent and obj.Parent.Name:lower():find("car") then
+                        obj.Material = Enum.Material.Metal
+                        obj.Reflectance = 0.8 -- Increased from 0.6 for maximum metallic gloss
+                    end
+                    
+                    -- Enhance glass materials
+                    if obj.Material == Enum.Material.Glass then
+                        obj.Reflectance = 0.9 -- Increased from 0.7 for maximum glass gloss
+                        obj.Transparency = 0.5 -- Less transparent for more reflection
+                    end
+                    
+                    -- Make all surfaces more glossy
+                    if obj.Material == Enum.Material.Plastic then
+                        obj.Material = Enum.Material.SmoothPlastic
+                        obj.Reflectance = 0.4 -- Increased from 0.2
+                    end
+                    
+                    if obj.Material == Enum.Material.Wood or obj.Material == Enum.Material.WoodPlank then
+                        obj.Reflectance = 0.3 -- Increased from 0.15 for more wood gloss
+                    end
+                    
+                    if obj.Material == Enum.Material.Concrete then
+                        obj.Material = Enum.Material.SmoothPlastic
+                        obj.Reflectance = 0.5 -- Increased from 0.25
+                    end
+                    
+                    if obj.Material == Enum.Material.Brick then
+                        obj.Reflectance = 0.2 -- Increased from 0.1 for more brick gloss
+                    end
+                    
+                    -- Add gloss to all other materials
+                    if obj.Material == Enum.Material.Slate then
+                        obj.Reflectance = 0.35
+                    end
+                    
+                    if obj.Material == Enum.Material.Marble then
+                        obj.Reflectance = 0.7
+                    end
+                    
+                    if obj.Material == Enum.Material.Granite then
+                        obj.Reflectance = 0.4
+                    end
+                    
+                    if obj.Material == Enum.Material.Pebble then
+                        obj.Reflectance = 0.25
+                    end
+                end
             end
+            
+            -- Add dynamic lighting updates
+            getgenv().ShaderHeartbeat = game:GetService("RunService").Heartbeat:Connect(function()
+                local time = tick()
+                getgenv().ShaderLighting.Brightness = 0.6 + math.sin(time * 0.1) * 0.05 -- Fixed base brightness to 0.6
+            end)
+            
+            Rayfield:Notify({
+                Title = "Shaders",
+                Content = "RTX-style shaders activated!",
+                Duration = 3
+            })
+        else
+            -- Restore original lighting settings
+            if getgenv().ShaderLighting then
+                getgenv().ShaderLighting.Brightness = getgenv().OriginalBrightness or 1
+                getgenv().ShaderLighting.TimeOfDay = getgenv().OriginalTimeOfDay or "14:00:00"
+                getgenv().ShaderLighting.FogEnd = getgenv().OriginalFogEnd or 1000
+                getgenv().ShaderLighting.FogStart = 0
+                getgenv().ShaderLighting.ColorShift_Top = getgenv().OriginalColorShift_Top or Color3.new(0,0,0)
+                getgenv().ShaderLighting.ColorShift_Bottom = getgenv().OriginalColorShift_Bottom or Color3.new(0,0,0)
+                getgenv().ShaderLighting.OutdoorAmbient = getgenv().OriginalOutdoorAmbient or Color3.new(0.5,0.5,0.5)
+            end
+            
+            -- Clean up shader effects
+            if getgenv().ShaderAtmosphere then
+                getgenv().ShaderAtmosphere:Destroy()
+                getgenv().ShaderAtmosphere = nil
+            end
+            if getgenv().ShaderBloom then
+                getgenv().ShaderBloom:Destroy()
+                getgenv().ShaderBloom = nil
+            end
+            if getgenv().ShaderColorCorrection then
+                getgenv().ShaderColorCorrection:Destroy()
+                getgenv().ShaderColorCorrection = nil
+            end
+            if getgenv().ShaderSunRays then
+                getgenv().ShaderSunRays:Destroy()
+                getgenv().ShaderSunRays = nil
+            end
+            if getgenv().ShaderDepthOfField then
+                getgenv().ShaderDepthOfField:Destroy()
+                getgenv().ShaderDepthOfField = nil
+            end
+            if getgenv().ShaderHeartbeat then
+                getgenv().ShaderHeartbeat:Disconnect()
+                getgenv().ShaderHeartbeat = nil
+            end
+            
+            Rayfield:Notify({
+                Title = "Shaders",
+                Content = "Shaders disabled!",
+                Duration = 3
+            })
         end
     end,
 })
@@ -966,19 +1132,31 @@ MiscTab:CreateButton({
         -- Teleport to gun and grab it
         local hrp = localChar:FindFirstChild("HumanoidRootPart")
         if hrp then
-            -- Teleport to gun
-            hrp.CFrame = CFrame.new(gunPosition + Vector3.new(0, 2, 0))
-            task.wait(0.1)
+            -- Store original position in case we need to go back
+            local originalPosition = hrp.CFrame
             
-            -- Try to pick up gun multiple times
+            -- Teleport directly to gun position
+            hrp.CFrame = CFrame.new(gunPosition)
+            task.wait(0.05)
+            
+            -- Try to pick up gun with more aggressive approach
             local pickedUp = false
-            for i = 1, 10 do
+            local maxAttempts = 20
+            
+            for i = 1, maxAttempts do
+                -- Check if gun still exists
                 if gunObject and gunObject.Parent then
                     local handle = gunObject:FindFirstChild("Handle") or gunObject:FindFirstChildWhichIsA("BasePart")
                     if handle then
-                        -- Move to gun position
+                        -- Stay right on the gun
                         hrp.CFrame = CFrame.new(handle.Position)
-                        task.wait(0.1)
+                        
+                        -- Try to manually grab the gun
+                        if gunObject.Parent == workspace then
+                            gunObject.Parent = localPlayer.Backpack
+                        end
+                        
+                        task.wait(0.05)
                         
                         -- Check if gun is now in backpack or equipped
                         local backpackGun = localPlayer.Backpack:FindFirstChild("Gun")
@@ -989,12 +1167,24 @@ MiscTab:CreateButton({
                             -- Equip the gun if it's in backpack
                             if backpackGun then
                                 backpackGun.Parent = localChar
+                                task.wait(0.1)
                             end
                             break
                         end
                     end
+                else
+                    -- Gun might have been picked up, check again
+                    local backpackGun = localPlayer.Backpack:FindFirstChild("Gun")
+                    local equippedGun = localChar:FindFirstChild("Gun")
+                    if backpackGun or equippedGun then
+                        pickedUp = true
+                        if backpackGun then
+                            backpackGun.Parent = localChar
+                        end
+                        break
+                    end
                 end
-                task.wait(0.1)
+                task.wait(0.05)
             end
             
             -- Notify result
@@ -1005,9 +1195,11 @@ MiscTab:CreateButton({
                     Duration = 3
                 })
             else
+                -- Go back to original position if failed
+                hrp.CFrame = originalPosition
                 Rayfield:Notify({
                     Title = "Grab Gun",
-                    Content = "Failed to grab gun",
+                    Content = "Failed to grab gun - returned to original position",
                     Duration = 3
                 })
             end
