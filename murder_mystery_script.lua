@@ -312,15 +312,7 @@ local AimbotTab = Window:CreateTab("🎯 Aimbot", 4483362458)
 
 -- Aimbot Keybind Info
 AimbotTab:CreateLabel("🎖 Aimbot (Keybind: Q)")
-
--- Aimbot Toggle 🎖
-AimbotTab:CreateToggle({
-    Name = "🎖 Aimbot",
-    CurrentValue = false,
-    Callback = function(value)
-        getgenv().AimbotEnabled = value
-    end,
-})
+AimbotTab:CreateLabel("Press Q to toggle aimbot on/off")
 
 -- Aimbot Settings ⚙️
 AimbotTab:CreateSlider({
