@@ -525,33 +525,26 @@ MiscTab:CreateToggle({
     CurrentValue = false,
     Callback = function(value)
         getgenv().FlyEnabled = value
-        local flySpeed = 50
-        local flyDirection = Vector3.new(0, 0, 0)
-        
         if value then
-            local char = game.Players.LocalPlayer.Character
-            local humanoid = char and char:FindFirstChildOfClass("Humanoid")
-            local rootPart = char and char:FindFirstChild("HumanoidRootPart")
-            
-            if humanoid and rootPart then
-                local bv = Instance.new("BodyVelocity")
-                bv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                bv.Velocity = Vector3.new(0, 0, 0)
-                bv.Parent = rootPart
-                getgenv().FlyBV = bv
-                
-                local bg = Instance.new("BodyGyro")
-                bg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                bg.P = 10000
-                bg.Parent = rootPart
-                getgenv().FlyBG = bg
+            getgenv().FlySpeed = getgenv().FlySpeed or 50 -- Use stored speed or default
+            local localPlayer = game.Players.LocalPlayer
+            local char = localPlayer.Character
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                local hrp = char:FindFirstChild("HumanoidRootPart")
+                getgenv().FlyBV = Instance.new("BodyVelocity")
+                getgenv().FlyBV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+                getgenv().FlyBV.P = 5000
+                getgenv().FlyBV.Parent = hrp
+                getgenv().FlyBG = Instance.new("BodyGyro")
+                getgenv().FlyBG.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
+                getgenv().FlyBG.P = 5000
+                getgenv().FlyBG.Parent = hrp
                 
                 coroutine.wrap(function()
                     while getgenv().FlyEnabled do
                         pcall(function()
                             local cam = workspace.CurrentCamera
                             local moveDirection = Vector3.new(0, 0, 0)
-                            
                             if game:GetService("UserInputService"):IsKeyDown(Enum.KeyCode.W) then
                                 moveDirection = moveDirection + cam.CFrame.LookVector
                             end
@@ -572,7 +565,7 @@ MiscTab:CreateToggle({
                             end
                             
                             if moveDirection.Magnitude > 0 then
-                                moveDirection = moveDirection.Unit * flySpeed
+                                moveDirection = moveDirection.Unit * getgenv().FlySpeed
                                 getgenv().FlyBV.Velocity = moveDirection
                             else
                                 getgenv().FlyBV.Velocity = Vector3.new(0, 0, 0)
@@ -593,6 +586,21 @@ MiscTab:CreateToggle({
                 getgenv().FlyBG:Destroy()
                 getgenv().FlyBG = nil
             end
+        end
+    end,
+})
+
+-- Fly Speed Slider
+MiscTab:CreateSlider({
+    Name = "[Fly Speed]",
+    Range = {10, 200},
+    Increment = 5,
+    CurrentValue = 50,
+    Callback = function(value)
+        getgenv().FlySpeed = value
+        -- Update fly speed if fly is currently active
+        if getgenv().FlyEnabled then
+            -- The speed will be applied on the next frame in the fly loop
         end
     end,
 })
